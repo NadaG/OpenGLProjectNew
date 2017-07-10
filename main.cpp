@@ -3,8 +3,8 @@
 #include "ShaderLoader.h"
 
 // TODO uniform and location value refacto
-// TODO vertex buffer seperate
 // TODO obj loader 하기
+// TODO MyObject 구현하기 MyObject = mesh + matrix info + shader
 // torus obj load
 
 using namespace std;
@@ -101,10 +101,9 @@ int main(int argc, char **argv)
 		1.0f, 0.0f, 0.0f
 	};
 
-
-
 	// 버텍스들을 담을 버퍼를 만들고
 	// bufferdata 함수를 통해 버퍼에 데이터를 집어넣음
+	// buffer를 하나로 만들어 glBufferData를 한번만 호출하도록 하여 overhead를 줄일 수 있다.
 	GLuint vertexbuffer;
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -118,7 +117,6 @@ int main(int argc, char **argv)
 		// 사용할 셰이더 프로그램
 		for (int i = 0; i < shaderProgramNum; i++)
 		{
-			////////////////////////////////////////////
 			glUseProgram(programIDs[i]);
 
 			if (i)
