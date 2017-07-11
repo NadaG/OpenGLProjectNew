@@ -115,6 +115,8 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="ObjLoader.cpp" />
+    <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -127,9 +129,10 @@
   <ItemGroup>
     <ClInclude Include="DefaultHeader.h" />
     <ClInclude Include="Face.h" />
-    <ClInclude Include="loadShader.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="OpenGLHeader.h" />
+    <ClInclude Include="SceneObject.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>

@@ -14,6 +14,7 @@ private:
 public:
 
 	ShaderProgram();
+	ShaderProgram(const char * vertex_file_path, const char * fragment_file_path);
 	virtual ~ShaderProgram();
 
 	GLuint GetShaderProgram(){ return shaderProgram; }

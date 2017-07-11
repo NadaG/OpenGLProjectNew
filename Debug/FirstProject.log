@@ -1,17 +1,4 @@
 ﻿  main.cpp
-  Mesh.cpp
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(307): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(308): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(309): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(312): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(313): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(314): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(317): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(318): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(319): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(334): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(335): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\mesh.cpp(336): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-  Generating Code...
-  FirstProject.vcxproj -> C:\Users\RENDER4\Documents\Visual Studio 2015\Projects\FirstProject\Debug\FirstProject.exe
-  FirstProject.vcxproj -> C:\Users\RENDER4\Documents\Visual Studio 2015\Projects\FirstProject\Debug\FirstProject.pdb (Partial PDB)
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\sceneobject.h(18): warning C4172: returning address of local variable or temporary
+  FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\Debug\FirstProject.exe
+  FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\Debug\FirstProject.pdb (Partial PDB)
