@@ -1,4 +1,8 @@
 ﻿  main.cpp
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\sceneobject.h(18): warning C4172: returning address of local variable or temporary
+  Generating Code...
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\sceneobject.h(19): warning C4172: returning address of local variable or temporary
+  Skipping... (no relevant changes detected)
+  SceneObject.cpp
+  InputManager.cpp
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\Debug\FirstProject.exe
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\Debug\FirstProject.pdb (Partial PDB)

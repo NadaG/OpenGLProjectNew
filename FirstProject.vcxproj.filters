@@ -33,19 +33,22 @@
     <ClCompile Include="SceneObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="SecondFragmentShader.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="SecondVertexShader.vs">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="SimpleFragmentShader.fs">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="SimpleVertexShader.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SecondVertexShader.vs">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SceneObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

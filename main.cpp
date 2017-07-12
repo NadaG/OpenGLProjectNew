@@ -1,7 +1,8 @@
 #include "SceneObject.h"
 
-// TODO uniform and location value refacto
-// TODO MyObject 구현하기 MyObject = mesh + matrix info + shader
+// TODO texture mapping using load png file
+// TODO materials
+// TODO lighting map
 
 using namespace std;
 
@@ -24,6 +25,7 @@ int main(int argc, char **argv)
 
 	GLFWwindow* window;
 	window = glfwCreateWindow(width, height, "OpenGL", NULL, NULL);
+	InputManager::GetInstance()->SetWindow(window);
 
 	if (window == NULL)
 	{
@@ -50,50 +52,31 @@ int main(int argc, char **argv)
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	int shaderProgramNum = 2;
-	
+	int objNum = 2;
 	SceneObject sceneObject[] =
 	{
 		ShaderProgram("SecondVertexShader.vs", "SecondFragmentShader.fs"),
 		ShaderProgram("SecondVertexShader.vs", "SecondFragmentShader.fs")
 	};
 
-	for (int i = 0; i < 2; i++)
-	{
-		GLuint id = sceneObject[i].GetShaderProgramID();
-	}
-
 	// uniform location
-	GLuint matrixID2 = glGetUniformLocation(sceneObject[1].GetShaderProgramID(), "MVP");
-	glm::mat4 model2 = glm::mat4(0.5f);
-	model2 = glm::translate(model2, glm::vec3(200.0f, 0.0f, 0.0f));
-	
 	GLuint matrixID = glGetUniformLocation(sceneObject[0].GetShaderProgramID(), "MVP");
 	GLuint directionalLightID = glGetUniformLocation(sceneObject[0].GetShaderProgramID(), "lightDirection");
 	GLuint eyePosID = glGetUniformLocation(sceneObject[0].GetShaderProgramID(), "eyePos");
 
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+
 	glm::vec3 eyePos(0.0f, 0.0f, 10.0f);
 
-	glm::mat4 model = glm::mat4(0.5f);
-	
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
-	glm::mat4 view = glm::lookAt
-	(
-		eyePos,
-		glm::vec3(0, 0, 0),
-		glm::vec3(0, 1, 0)
-	);
-
-	glm::mat4 mvp = projection * view * model;
-	glm::mat4 mvp2 = projection * view * model2;
-
-	int objNum = 2;
-	Mesh *meshes = new Mesh[2];
+	Mesh *meshes = new Mesh[objNum];
 	meshes[0].LoadMesh(QUAD);
 	meshes[1].LoadMesh(SPHERE);
-	sceneObject[0].SetMesh(meshes[0]);
-	sceneObject[1].SetMesh(meshes[1]);
-
+	
+	for (int i = 0; i < objNum; i++)
+	{
+		sceneObject[i].SetMesh(meshes[i]);
+	}
+	
 	// position + color + normal
 	int floatNum = 9;
 	GLfloat** vertexBufferDatas = new GLfloat*[objNum];
@@ -132,15 +115,60 @@ int main(int argc, char **argv)
 		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * meshes[i].GetVertexNum() * floatNum, vertexBufferDatas[i], GL_STATIC_DRAW);
 	}
 
+	double mousePosX = 0.0, mousePosY = 0.0, lastMousePosX = 0.0, lastMousePosY = 0.0;
+	float cameraDeltaMove = 0.3f;
+
 	// SRT의 순서대로 곱이 동작한다.
 	do
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		if (glfwGetKey(window, GLFW_KEY_A))
+			sceneObject[1].Translate(glm::vec3(-0.05f, 0.0f, 0.0f));
+		else if (glfwGetKey(window, GLFW_KEY_D))
+			sceneObject[1].Translate(glm::vec3(0.05f, 0.0f, 0.0f));
+
+		if (glfwGetKey(window, GLFW_KEY_Q))
+			sceneObject[1].Translate(glm::vec3(0.0f, 0.0f, 0.05f));
+		else if (glfwGetKey(window, GLFW_KEY_E))
+			sceneObject[1].Translate(glm::vec3(0.0f, 0.0f, -0.05f));
+
+		if (glfwGetKey(window, GLFW_KEY_W))
+			sceneObject[1].Translate(glm::vec3(0.0f, 0.05f, 0.0f));
+		else if (glfwGetKey(window, GLFW_KEY_S))
+			sceneObject[1].Translate(glm::vec3(0.0f, -0.05f, 0.0f));
+
+		glfwGetCursorPos(window, &mousePosX, &mousePosY);
+		
+		if (InputManager::GetInstance()->IsLeftMouseClicked())
+		{
+			// 오른쪽으로 갔다면
+			if (mousePosX - lastMousePosX > 0)
+				eyePos.x -= cameraDeltaMove;
+			// 왼쪽으로 갔다면
+			else if (mousePosX - lastMousePosX < 0)
+				eyePos.x += cameraDeltaMove;
+
+			if (mousePosY - lastMousePosY > 0)
+				eyePos.y += cameraDeltaMove;
+			else if (mousePosY - lastMousePosY < 0)
+				eyePos.y -= cameraDeltaMove;
+		}
+
+		lastMousePosX = mousePosX;
+		lastMousePosY = mousePosY;
 		// 사용할 셰이더 프로그램 및 오브젝트 프로그램
 		for (int i = 0; i < objNum; i++)
 		{
 			glUseProgram(sceneObject[i].GetShaderProgramID());
+			glm::mat4 view = glm::lookAt
+			(
+				eyePos,
+				glm::vec3(0, 0, 0),
+				glm::vec3(0, 1, 0)
+			);
+
+			glm::mat4 mvp = projection * view * sceneObject[i].GetModelMatrix();
 			glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
 
 			glUniform3f(directionalLightID, 1.0f, 0.0f, -1.0f);
@@ -188,13 +216,14 @@ int main(int argc, char **argv)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+	// input routine
 	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 		glfwWindowShouldClose(window) == 0);
 
 	glDeleteBuffers(objNum, vertexBuffers);
 	glDeleteVertexArrays(1, &VertexArrayID);
 
-	for (int i = 0; i < shaderProgramNum; i++)
+	for (int i = 0; i < objNum; i++)
 	{
 		glDeleteProgram(sceneObject[i].GetShaderProgramID());
 	}

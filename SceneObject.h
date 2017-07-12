@@ -4,6 +4,7 @@
 #include "OpenGLHeader.h"
 #include "ShaderLoader.h"
 #include "Mesh.h"
+#include "InputManager.h"
 
 class SceneObject
 {
@@ -15,7 +16,12 @@ public:
 
 	void SetMesh(const Mesh& mesh) { this->mesh = mesh; }
 	const Mesh& GetMesh() { return this->mesh; }
-	const GLuint& GetShaderProgramID() { return shaderProgram.GetShaderProgram(); }
+	const GLuint& GetShaderProgramID() { return this->shaderProgram.GetShaderProgram(); }
+	const glm::mat4& GetModelMatrix() { return this->modelMatrix; }
+
+	void Translate(const glm::vec3& vec);
+	void Rotate(const glm::vec3& vec);
+	void Scale(const glm::vec3& vec);
 
 private:
 	int id;
@@ -23,4 +29,5 @@ private:
 
 	ShaderProgram shaderProgram;
 	Mesh mesh;
+	glm::mat4 modelMatrix;
 };
