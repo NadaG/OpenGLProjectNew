@@ -1,1 +1,32 @@
-﻿C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\packages\OpenCV.2.4.11\build\native\OpenCV.targets(1119,5): error : NuGet Error:Unable to find version '2.4.11' of package 'OpenCV.overlay-x64_v140'.
+﻿  InputManager.cpp
+  Generating Code...
+  Compiling...
+  main.cpp
+  ShaderLoader.cpp
+  SceneObject.cpp
+  ObjLoader.cpp
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(164): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(188): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(217): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(249): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(278): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(281): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(283): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(285): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(291): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(292): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(293): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(296): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(297): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(298): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(301): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(302): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(303): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(318): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(319): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\objloader.cpp(320): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  Mesh.cpp
+  Generating Code...
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\sceneobject.h(19): warning C4172: returning address of local variable or temporary
+  FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Debug\FirstProject.exe
+  FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Debug\FirstProject.pdb (Partial PDB)

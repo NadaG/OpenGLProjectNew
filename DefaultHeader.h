@@ -5,6 +5,8 @@
 #include<fstream>
 #include<vector>
 #include<limits>
+#include<opencv2\core.hpp>
+#include<opencv2\opencv.hpp>
 
 using std::string;
 using std::cout;

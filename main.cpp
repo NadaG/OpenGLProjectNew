@@ -14,6 +14,8 @@ int height = 768;
 // 단 한 화면에 두 삼각형이 동시에 존재하여야한다.
 int main(int argc, char **argv)
 {
+	//cv::imread("wall.jpg", 1);
+
 	if (!glfwInit())
 		cout << "glfw init error" << endl;
 
