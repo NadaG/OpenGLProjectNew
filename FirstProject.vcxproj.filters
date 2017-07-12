@@ -39,16 +39,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="SecondFragmentShader.fs">
+    <None Include="TextureShader.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="SimpleFragmentShader.fs">
+    <None Include="TextureShader.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="SimpleVertexShader.vs">
+    <None Include="PhongShader.vs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="SecondVertexShader.vs">
+    <None Include="PhongShader.fs">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

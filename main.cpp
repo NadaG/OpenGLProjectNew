@@ -14,7 +14,20 @@ int height = 768;
 // 단 한 화면에 두 삼각형이 동시에 존재하여야한다.
 int main(int argc, char **argv)
 {
-	//cv::imread("wall.jpg", 1);
+	// load image
+	cv::Mat image = cv::imread("wall.jpg", 1);
+
+	GLchar* imageData = new GLchar[512 * 512 * 3];
+	for (int i = 0; i < image.rows; i++)
+	{
+		for (int j = 0; j < image.cols; j++)
+		{
+			for (int k = 0; k < 3; k++)
+			{
+				imageData[i*image.cols + j * 3 + k] = image.at<cv::Vec3b>(j, i)[k];
+			}
+		}
+	}
 
 	if (!glfwInit())
 		cout << "glfw init error" << endl;
@@ -49,22 +62,49 @@ int main(int argc, char **argv)
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
+	// texture parameter 설정
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// texture 생성
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
 	// VAO 생성
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
 	int objNum = 2;
+	ShaderProgram phongShader("PhongShader.vs", "PhongShader.fs");
+	ShaderProgram textureShader("TextureShader.vs", "TextureShader.fs");
+
+	phongShader.AddLayout(LAYOUT_POSITION, 3);
+	phongShader.AddLayout(LAYOUT_COLOR, 3);
+	phongShader.AddLayout(LAYOUT_NORMAL, 3);
+
+	textureShader.AddLayout(LAYOUT_POSITION, 3);
+	textureShader.AddLayout(LAYOUT_UV, 2);
+	textureShader.AddLayout(LAYOUT_NORMAL, 3);
+
 	SceneObject sceneObject[] =
 	{
-		ShaderProgram("SecondVertexShader.vs", "SecondFragmentShader.fs"),
-		ShaderProgram("SecondVertexShader.vs", "SecondFragmentShader.fs")
+		textureShader,
+		phongShader
 	};
-
+	
 	// uniform location
-	GLuint matrixID = glGetUniformLocation(sceneObject[0].GetShaderProgramID(), "MVP");
-	GLuint directionalLightID = glGetUniformLocation(sceneObject[0].GetShaderProgramID(), "lightDirection");
-	GLuint eyePosID = glGetUniformLocation(sceneObject[0].GetShaderProgramID(), "eyePos");
+	// TODO 정리할 것
+	GLuint matrixID = glGetUniformLocation(sceneObject[1].GetShaderProgramID(), "MVP");
+	GLuint directionalLightID = glGetUniformLocation(sceneObject[1].GetShaderProgramID(), "lightDirection");
+	GLuint eyePosID = glGetUniformLocation(sceneObject[1].GetShaderProgramID(), "eyePos");
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 
@@ -79,30 +119,53 @@ int main(int argc, char **argv)
 		sceneObject[i].SetMesh(meshes[i]);
 	}
 	
-	// position + color + normal
-	int floatNum = 9;
 	GLfloat** vertexBufferDatas = new GLfloat*[objNum];
 	
 	for (int i = 0; i < objNum; i++)
 	{
-		Mesh mesh = sceneObject[i].GetMesh();		
+		// TODO fix error
+		if (i)
+			sceneObject[i].GetShaderProgram().SetFloatNum(9);
+		else
+			sceneObject[i].GetShaderProgram().SetFloatNum(8);
+
+		int floatNum = sceneObject[i].GetShaderProgram().GetFloatNum();
+		
+		Mesh mesh = sceneObject[i].GetMesh();
 		vertexBufferDatas[i] = new GLfloat[mesh.GetVertexNum() * floatNum];
 		for (int j = 0; j < mesh.GetVertexNum(); j++)
 		{
-			// position
-			vertexBufferDatas[i][j * floatNum] = mesh.GetVertice(j).position.x;
-			vertexBufferDatas[i][j * floatNum + 1] = mesh.GetVertice(j).position.y;
-			vertexBufferDatas[i][j * floatNum + 2] = mesh.GetVertice(j).position.z;
-			
-			// color
-			vertexBufferDatas[i][j * floatNum + 3] = 1.0f;
-			vertexBufferDatas[i][j * floatNum + 4] = 1.0f;
-			vertexBufferDatas[i][j * floatNum + 5] = 1.0f;
+			int offset = 0;
+			if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_POSITION))
+			{
+				vertexBufferDatas[i][j * floatNum + offset] = mesh.GetVertice(j).position.x;
+				vertexBufferDatas[i][j * floatNum + offset + 1] = mesh.GetVertice(j).position.y;
+				vertexBufferDatas[i][j * floatNum + offset + 2] = mesh.GetVertice(j).position.z;
+				offset += 3;
+			}
 
-			// normal
-			vertexBufferDatas[i][j * floatNum + 6] = mesh.GetVertice(j).normal.x;
-			vertexBufferDatas[i][j * floatNum + 7] = mesh.GetVertice(j).normal.y;
-			vertexBufferDatas[i][j * floatNum + 8] = mesh.GetVertice(j).normal.z;
+			if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_COLOR))
+			{
+				vertexBufferDatas[i][j * floatNum + offset] = 1.0f;
+				vertexBufferDatas[i][j * floatNum + offset + 1] = 1.0f;
+				vertexBufferDatas[i][j * floatNum + offset + 2] = 1.0f;
+				offset += 3;
+			}
+
+			if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_NORMAL))
+			{
+				vertexBufferDatas[i][j * floatNum + offset] = mesh.GetVertice(j).normal.x;
+				vertexBufferDatas[i][j * floatNum + offset + 1] = mesh.GetVertice(j).normal.y;
+				vertexBufferDatas[i][j * floatNum + offset + 2] = mesh.GetVertice(j).normal.z;
+				offset += 3;
+			}
+
+			if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_UV))
+			{
+				vertexBufferDatas[i][j * floatNum + offset] = mesh.GetVertice(j).uv.x;
+				vertexBufferDatas[i][j * floatNum + offset + 1] = mesh.GetVertice(j).uv.y;
+				offset += 2;
+			}
 		}
 	}
 
@@ -114,7 +177,7 @@ int main(int argc, char **argv)
 	for (int i = 0; i < objNum; i++)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[i]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * meshes[i].GetVertexNum() * floatNum, vertexBufferDatas[i], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * meshes[i].GetVertexNum() * sceneObject[i].GetShaderProgram().GetFloatNum(), vertexBufferDatas[i], GL_STATIC_DRAW);
 	}
 
 	double mousePosX = 0.0, mousePosY = 0.0, lastMousePosX = 0.0, lastMousePosY = 0.0;
@@ -162,7 +225,8 @@ int main(int argc, char **argv)
 		// 사용할 셰이더 프로그램 및 오브젝트 프로그램
 		for (int i = 0; i < objNum; i++)
 		{
-			glUseProgram(sceneObject[i].GetShaderProgramID());
+			ShaderProgram shaderProgram = sceneObject[i].GetShaderProgram();
+			glUseProgram(shaderProgram.GetShaderProgramID());
 			glm::mat4 view = glm::lookAt
 			(
 				eyePos,
@@ -170,49 +234,46 @@ int main(int argc, char **argv)
 				glm::vec3(0, 1, 0)
 			);
 
+			// TODO uniform들을 어디에 모아두는 것이 좋을까?
 			glm::mat4 mvp = projection * view * sceneObject[i].GetModelMatrix();
 			glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
-
 			glUniform3f(directionalLightID, 1.0f, 0.0f, -1.0f);
 			glUniform3f(eyePosID, eyePos.x, eyePos.y, eyePos.z);
 
-			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
-			glEnableVertexAttribArray(2);
+			// 4는 layout 총 개수
+			for (int j = 0; j < 4; j++)
+			{
+				if (shaderProgram.IsLayoutExist((LayoutType)j))
+					glEnableVertexAttribArray(j);
+			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[i]);
-			glVertexAttribPointer(
-				0,
-				3,
-				GL_FLOAT,
-				GL_FALSE,
-				sizeof(GLfloat) * floatNum,
-				(void*)0
-			);
 
-			glVertexAttribPointer(
-				1, // layout(location)에 들어갈 숫자이다.
-				3,
-				GL_FLOAT,
-				GL_FALSE,
-				sizeof(GLfloat) * floatNum, // stride, 0로 하면 GL_FLOAT와 2번째 인자 정보를 통해 계산한다.
-				(void*)(sizeof(GLfloat) * 3) // 하나의 vertex 정보 set에서 해당 layout이 얼마나 떨어져 있는지
-			);
-
-			glVertexAttribPointer(
-				2,
-				3,
-				GL_FLOAT,
-				GL_FALSE,
-				sizeof(GLfloat) * floatNum,
-				(void*)(sizeof(GLfloat) * 6)
-			);
-
+			int offset = 0;
+			for (int j = 0; j < 4; j++)
+			{
+				if (shaderProgram.IsLayoutExist((LayoutType)j))
+				{
+					glVertexAttribPointer(
+						j, // layout(location)에 들어갈 숫자이다.
+						shaderProgram.GetLayoutSize((LayoutType)j),
+						GL_FLOAT,
+						GL_FALSE,
+						sizeof(GLfloat) * sceneObject[i].GetShaderProgram().GetFloatNum(), // stride
+						(void*)(sizeof(GLfloat) * offset) // 하나의 vertex 정보 set에서 해당 layout이 얼마나 떨어져 있는지
+					);
+					offset += shaderProgram.GetLayoutSize((LayoutType)j);
+				}
+			}
+			
 			glDrawArrays(GL_TRIANGLES, 0, meshes[i].GetVertexNum() * 3);
 
-			glDisableVertexAttribArray(0);
-			glDisableVertexAttribArray(1);
-			glDisableVertexAttribArray(2);
+			// 4는 layout 총 개수
+			for (int j = 0; j < 4; j++)
+			{
+				if (shaderProgram.IsLayoutExist((LayoutType)j))
+					glDisableVertexAttribArray(j);
+			}
 		}
 
 		glfwSwapBuffers(window);

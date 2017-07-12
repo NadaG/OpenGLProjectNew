@@ -4,12 +4,14 @@
 ShaderProgram::ShaderProgram()
 {
 	shaderProgram = glCreateProgram();
+	floatNum = 0;
 }
 
 ShaderProgram::ShaderProgram(const char * vertex_file_path, const char * fragment_file_path)
 {
 	shaderProgram = glCreateProgram();
 	LoadShaders(vertex_file_path, fragment_file_path);
+	floatNum = 0;
 }
 
 ShaderProgram::~ShaderProgram() 
@@ -85,4 +87,20 @@ GLuint ShaderProgram::LoadShader(const char* shaderFilePath, int shaderType)
 	}
 
 	return shaderID;
+}
+
+void ShaderProgram::AddLayout(LayoutType type, int size)
+{
+	floatNum += size;
+	layouts.push_back(std::make_pair(type, size));
+}
+
+const int& ShaderProgram::GetLayoutSize(LayoutType type)
+{
+	for (int i = 0; i < layouts.size(); i++)
+	{
+		if (type == layouts[i].first)
+			return layouts[i].second;
+	}
+	return 0;
 }

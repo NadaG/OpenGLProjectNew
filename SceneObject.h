@@ -16,7 +16,8 @@ public:
 
 	void SetMesh(const Mesh& mesh) { this->mesh = mesh; }
 	const Mesh& GetMesh() { return this->mesh; }
-	const GLuint& GetShaderProgramID() { return this->shaderProgram.GetShaderProgram(); }
+	const GLuint& GetShaderProgramID() { return this->shaderProgram.GetShaderProgramID(); }
+	ShaderProgram GetShaderProgram() { return this->shaderProgram; }
 	const glm::mat4& GetModelMatrix() { return this->modelMatrix; }
 
 	void Translate(const glm::vec3& vec);
