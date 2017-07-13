@@ -8,11 +8,10 @@ in vec2 outTexCoord;
 struct Material
 {
 	sampler2D diffuse;
-	vec3 specular;
+	sampler2D specular;
 	float shininess;
 };
 
-uniform sampler2D ourTexture;
 uniform vec3 eyePos;
 uniform vec3 lightPos;
 uniform vec3 lightColor;
@@ -33,7 +32,7 @@ void main()
 	vec3 eyeDir = normalize(eyePos - outPos);
 	vec3 reflectDir = reflect(-lightDir, norm);
 	float spec = pow(max(dot(eyeDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = lightColor * spec * material.specular;
+	vec3 specular = lightColor * spec * vec3(texture(material.specular, outTexCoord));
 
 	color = ambient + diffuse + specular;
 }

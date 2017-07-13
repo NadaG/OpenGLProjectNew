@@ -1,9 +1,10 @@
-#include "SceneObject.h"
 #include "PointLightObject.h"
+#include "QuadObject.h"
+#include "SphereObject.h"
 
-// TODO lighting map
-// TODO object class seperate
+// TODO specular light map
 // TODO object uniform seperate
+// TODO
 
 using namespace std;
 
@@ -12,24 +13,11 @@ int height = 768;
 // w = 1 이면 (x, y, z, 1)이므로 위치이다
 // w = 0 이면 (x, y, z, 0)이므로 방향이다
 
+void GenerateDatas(GLubyte* data, cv::Mat image);
+
 // 단 한 화면에 두 삼각형이 동시에 존재하여야한다.
 int main(int argc, char **argv)
 {
-	// load image
-	cv::Mat image = cv::imread("wall.jpg", 1);
-
-	GLubyte* imageData = new GLubyte[image.rows * image.cols * 3];
-	for (int i = 0; i < image.rows; i++)
-	{
-		for (int j = 0; j < image.cols; j++)
-		{
-			for (int k = 0; k < 3; k++) 
-			{
-				imageData[(i * image.cols + j) * 3 + k] = image.at<cv::Vec3b>(j, i)[k];
-			}
-		}
-	}
-
 	if (!glfwInit())
 		cout << "glfw init error" << endl;
 
@@ -70,18 +58,32 @@ int main(int argc, char **argv)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	// load image
+	cv::Mat dImage = cv::imread("Container_DiffuseMap.png", 1);
+	GLubyte* dImageData = new GLubyte[dImage.rows * dImage.cols * 3];
+	GenerateDatas(dImageData, dImage);
+
 	// texture 생성
 	GLuint diffuseMap;
 	glGenTextures(1, &diffuseMap);
 	glBindTexture(GL_TEXTURE_2D, diffuseMap);
-
-	// image width and height
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+	// 뭐하는 함수인가?
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dImage.cols, dImage.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, dImageData);
 	glGenerateMipmap(GL_TEXTURE_2D);
-
+	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, diffuseMap);
 
+	cv::Mat sImage = cv::imread("Container_SpecularMap.png", 1);
+	GLubyte* sImageData = new GLubyte[sImage.rows * sImage.cols * 3];
+	GenerateDatas(sImageData, sImage);
+
+	GLuint specularMap;
+	glGenTextures(1, &specularMap);
+	
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, specularMap);
+	
 	// VAO 생성
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -107,8 +109,8 @@ int main(int argc, char **argv)
 	// generate scene objects
 	SceneObject* sceneObjects[3];
 
-	sceneObjects[0] = new PointLightObject(textureShader);
-	sceneObjects[1] = new PointLightObject(phongShader);
+	sceneObjects[0] = new QuadObject(textureShader);
+	sceneObjects[1] = new SphereObject(phongShader);
 	sceneObjects[2] = new PointLightObject(lightShader);
 
 	// uniform location
@@ -124,7 +126,6 @@ int main(int argc, char **argv)
 	GLuint lightColorID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "lightColor");
 	GLuint tsEyePosID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "eyePos");
 	GLuint materialDiffuseID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.diffuse");
-	GLuint materialAmbientID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.ambient");
 	GLuint materialSpecualrID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.specular");
 	GLuint materialShininessID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.shininess");
 
@@ -226,38 +227,6 @@ int main(int argc, char **argv)
 		for (int i = 0; i < objNum; i++)
 			sceneObjects[i]->Update();
 
-		if (glfwGetKey(window, GLFW_KEY_A))
-			sceneObjects[sphereID]->Translate(glm::vec3(-0.05f, 0.0f, 0.0f));
-		else if (glfwGetKey(window, GLFW_KEY_D))
-			sceneObjects[sphereID]->Translate(glm::vec3(0.05f, 0.0f, 0.0f));
-
-		if (glfwGetKey(window, GLFW_KEY_Q))
-			sceneObjects[sphereID]->Translate(glm::vec3(0.0f, 0.0f, 0.05f));
-		else if (glfwGetKey(window, GLFW_KEY_E))
-			sceneObjects[sphereID]->Translate(glm::vec3(0.0f, 0.0f, -0.05f));
-
-		if (glfwGetKey(window, GLFW_KEY_W))
-			sceneObjects[sphereID]->Translate(glm::vec3(0.0f, 0.05f, 0.0f));
-		else if (glfwGetKey(window, GLFW_KEY_S))
-			sceneObjects[sphereID]->Translate(glm::vec3(0.0f, -0.05f, 0.0f));
-
-
-		if (glfwGetKey(window, GLFW_KEY_J))
-			sceneObjects[lightID]->Translate(glm::vec3(-0.05f, 0.0f, 0.0f));
-		else if (glfwGetKey(window, GLFW_KEY_L))
-			sceneObjects[lightID]->Translate(glm::vec3(0.05f, 0.0f, 0.0f));
-
-		if (glfwGetKey(window, GLFW_KEY_U))
-			sceneObjects[lightID]->Translate(glm::vec3(0.0f, 0.0f, 0.05f));
-		else if (glfwGetKey(window, GLFW_KEY_O))
-			sceneObjects[lightID]->Translate(glm::vec3(0.0f, 0.0f, -0.05f));
-
-		if (glfwGetKey(window, GLFW_KEY_I))
-			sceneObjects[lightID]->Translate(glm::vec3(0.0f, 0.05f, 0.0f));
-		else if (glfwGetKey(window, GLFW_KEY_K))
-			sceneObjects[lightID]->Translate(glm::vec3(0.0f, -0.05f, 0.0f));
-
-
 		glfwGetCursorPos(window, &mousePosX, &mousePosY);
 		
 		if (InputManager::GetInstance()->IsLeftMouseClicked())
@@ -289,11 +258,17 @@ int main(int argc, char **argv)
 				glm::vec3(0, 1, 0)
 			);
 
-			// TODO uniform들을 어디에 모아두는 것이 좋을까?
+			// TODO uniform들을 따로 모아두는 것이 좋을 거 같다
 			glm::mat4 mvp = projection * view * sceneObjects[i]->GetModelMatrix();
 			
 			if (i == quadID)
 			{
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, diffuseMap);
+
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, specularMap);
+
 				glUniformMatrix4fv(tsMatrixID, 1, GL_FALSE, &mvp[0][0]);
 				glUniform3f(tsEyePosID, eyePos.x, eyePos.y, eyePos.z);
 				glUniform3f(lightPosID, 
@@ -302,9 +277,8 @@ int main(int argc, char **argv)
 					sceneObjects[lightID]->GetPosition().z);
 				
 				glUniform3f(lightColorID, 1.0f, 1.0f, 1.0f);
-				glUniform3f(materialAmbientID, 0.1, 0.2, 0.1);
-				glUniform3f(materialDiffuseID, 0.1, 0.3, 0.1);
-				glUniform3f(materialSpecualrID, 0.1, 0.4, 0.2);
+				glUniform1i(materialDiffuseID, 0);
+				glUniform1i(materialSpecualrID, 1);
 				glUniform1f(materialShininessID, 32.0);
 			}
 			else
@@ -366,4 +340,18 @@ int main(int argc, char **argv)
 
 	glfwTerminate();
 	return 0;
+}
+
+void GenerateDatas(GLubyte* data, cv::Mat image)
+{
+	for (int i = 0; i < image.rows; i++)
+	{
+		for (int j = 0; j < image.cols; j++)
+		{
+			for (int k = 0; k < 3; k++)
+			{
+				data[(i * image.cols + j) * 3 + k] = image.at<cv::Vec3b>(j, i)[2 - k];
+			}
+		}
+	}
 }

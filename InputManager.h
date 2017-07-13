@@ -12,6 +12,8 @@ public:
 	bool IsLeftMouseClicked() { return this->isLeftMouseClicked; }
 	void SetWindow(GLFWwindow* window);
 
+	bool IsKey(int key) { return glfwGetKey(window, key); }
+	
 private:
 	InputManager() {};
 	InputManager(const InputManager& other);
