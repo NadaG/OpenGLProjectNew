@@ -1,8 +1,7 @@
 #include "SceneObject.h"
 
-// TODO texture mapping using load png file
-// TODO materials
 // TODO lighting map
+
 
 using namespace std;
 
@@ -17,14 +16,14 @@ int main(int argc, char **argv)
 	// load image
 	cv::Mat image = cv::imread("wall.jpg", 1);
 
-	GLchar* imageData = new GLchar[512 * 512 * 3];
+	GLubyte* imageData = new GLubyte[image.rows * image.cols * 3];
 	for (int i = 0; i < image.rows; i++)
 	{
 		for (int j = 0; j < image.cols; j++)
 		{
-			for (int k = 0; k < 3; k++)
+			for (int k = 0; k < 3; k++) 
 			{
-				imageData[i*image.cols + j * 3 + k] = image.at<cv::Vec3b>(j, i)[k];
+				imageData[(i * image.cols + j) * 3 + k] = image.at<cv::Vec3b>(j, i)[k];
 			}
 		}
 	}
@@ -74,7 +73,8 @@ int main(int argc, char **argv)
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+	// image width and height
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	// VAO 생성
@@ -82,29 +82,49 @@ int main(int argc, char **argv)
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	int objNum = 2;
+	int objNum = 3;
 	ShaderProgram phongShader("PhongShader.vs", "PhongShader.fs");
 	ShaderProgram textureShader("TextureShader.vs", "TextureShader.fs");
+	ShaderProgram lightShader("LightShader.vs", "LightShader.fs");
 
 	phongShader.AddLayout(LAYOUT_POSITION, 3);
 	phongShader.AddLayout(LAYOUT_COLOR, 3);
 	phongShader.AddLayout(LAYOUT_NORMAL, 3);
 
 	textureShader.AddLayout(LAYOUT_POSITION, 3);
-	textureShader.AddLayout(LAYOUT_UV, 2);
 	textureShader.AddLayout(LAYOUT_NORMAL, 3);
+	textureShader.AddLayout(LAYOUT_COLOR, 3);
+	textureShader.AddLayout(LAYOUT_UV, 2);
 
+	lightShader.AddLayout(LAYOUT_POSITION, 3);
+	lightShader.AddLayout(LAYOUT_COLOR, 3);
+
+	// generate scene objects
 	SceneObject sceneObject[] =
 	{
 		textureShader,
-		phongShader
+		phongShader,
+		lightShader
 	};
 	
 	// uniform location
-	// TODO 정리할 것
-	GLuint matrixID = glGetUniformLocation(sceneObject[1].GetShaderProgramID(), "MVP");
-	GLuint directionalLightID = glGetUniformLocation(sceneObject[1].GetShaderProgramID(), "lightDirection");
-	GLuint eyePosID = glGetUniformLocation(sceneObject[1].GetShaderProgramID(), "eyePos");
+	int sphereID = 1;
+	int quadID = 0;
+	int lightID = 2;
+	GLuint matrixID = glGetUniformLocation(sceneObject[sphereID].GetShaderProgramID(), "MVP");
+	GLuint directionalLightID = glGetUniformLocation(sceneObject[sphereID].GetShaderProgramID(), "lightDirection");
+	GLuint eyePosID = glGetUniformLocation(sceneObject[sphereID].GetShaderProgramID(), "eyePos");
+
+	GLuint tsMatrixID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "MVP");
+	GLuint lightPosID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "lightPos");
+	GLuint lightColorID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "lightColor");
+	GLuint tsEyePosID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "eyePos");
+	GLuint materialDiffuseID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "material.diffuse");
+	GLuint materialAmbientID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "material.ambient");
+	GLuint materialSpecualrID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "material.specular");
+	GLuint materialShininessID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "material.shininess");
+
+	GLuint lsMatrixID = glGetUniformLocation(sceneObject[lightID].GetShaderProgramID(), "MVP");
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 
@@ -113,7 +133,8 @@ int main(int argc, char **argv)
 	Mesh *meshes = new Mesh[objNum];
 	meshes[0].LoadMesh(QUAD);
 	meshes[1].LoadMesh(SPHERE);
-	
+	meshes[2].LoadMesh(SPHERE);
+
 	for (int i = 0; i < objNum; i++)
 	{
 		sceneObject[i].SetMesh(meshes[i]);
@@ -123,14 +144,18 @@ int main(int argc, char **argv)
 	
 	for (int i = 0; i < objNum; i++)
 	{
-		// TODO fix error
-		if (i)
-			sceneObject[i].GetShaderProgram().SetFloatNum(9);
-		else
-			sceneObject[i].GetShaderProgram().SetFloatNum(8);
+		int floatNum = 0;
+		if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_POSITION))
+			floatNum += 3;
+		if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_COLOR))
+			floatNum += 3;
+		if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_NORMAL))
+			floatNum += 3;
+		if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_UV))
+			floatNum += 2;
 
-		int floatNum = sceneObject[i].GetShaderProgram().GetFloatNum();
-		
+		sceneObject[i].GetShaderProgram().SetFloatNum(floatNum);
+
 		Mesh mesh = sceneObject[i].GetMesh();
 		vertexBufferDatas[i] = new GLfloat[mesh.GetVertexNum() * floatNum];
 		for (int j = 0; j < mesh.GetVertexNum(); j++)
@@ -183,25 +208,45 @@ int main(int argc, char **argv)
 	double mousePosX = 0.0, mousePosY = 0.0, lastMousePosX = 0.0, lastMousePosY = 0.0;
 	float cameraDeltaMove = 0.3f;
 
+	//sceneObject[quadID].Translate(glm::vec3(0.0f, 0.0f, -3.0f));
+	sceneObject[lightID].Scale(glm::vec3(0.5f, 0.5f, 0.5f));
 	// SRT의 순서대로 곱이 동작한다.
 	do
 	{
+		// TODO 매 프레임마다 position 과 normal을 보내줘야 할듯
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (glfwGetKey(window, GLFW_KEY_A))
-			sceneObject[1].Translate(glm::vec3(-0.05f, 0.0f, 0.0f));
+			sceneObject[sphereID].Translate(glm::vec3(-0.05f, 0.0f, 0.0f));
 		else if (glfwGetKey(window, GLFW_KEY_D))
-			sceneObject[1].Translate(glm::vec3(0.05f, 0.0f, 0.0f));
+			sceneObject[sphereID].Translate(glm::vec3(0.05f, 0.0f, 0.0f));
 
 		if (glfwGetKey(window, GLFW_KEY_Q))
-			sceneObject[1].Translate(glm::vec3(0.0f, 0.0f, 0.05f));
+			sceneObject[sphereID].Translate(glm::vec3(0.0f, 0.0f, 0.05f));
 		else if (glfwGetKey(window, GLFW_KEY_E))
-			sceneObject[1].Translate(glm::vec3(0.0f, 0.0f, -0.05f));
+			sceneObject[sphereID].Translate(glm::vec3(0.0f, 0.0f, -0.05f));
 
 		if (glfwGetKey(window, GLFW_KEY_W))
-			sceneObject[1].Translate(glm::vec3(0.0f, 0.05f, 0.0f));
+			sceneObject[sphereID].Translate(glm::vec3(0.0f, 0.05f, 0.0f));
 		else if (glfwGetKey(window, GLFW_KEY_S))
-			sceneObject[1].Translate(glm::vec3(0.0f, -0.05f, 0.0f));
+			sceneObject[sphereID].Translate(glm::vec3(0.0f, -0.05f, 0.0f));
+
+
+		if (glfwGetKey(window, GLFW_KEY_J))
+			sceneObject[lightID].Translate(glm::vec3(-0.05f, 0.0f, 0.0f));
+		else if (glfwGetKey(window, GLFW_KEY_L))
+			sceneObject[lightID].Translate(glm::vec3(0.05f, 0.0f, 0.0f));
+
+		if (glfwGetKey(window, GLFW_KEY_U))
+			sceneObject[lightID].Translate(glm::vec3(0.0f, 0.0f, 0.05f));
+		else if (glfwGetKey(window, GLFW_KEY_O))
+			sceneObject[lightID].Translate(glm::vec3(0.0f, 0.0f, -0.05f));
+
+		if (glfwGetKey(window, GLFW_KEY_I))
+			sceneObject[lightID].Translate(glm::vec3(0.0f, 0.05f, 0.0f));
+		else if (glfwGetKey(window, GLFW_KEY_K))
+			sceneObject[lightID].Translate(glm::vec3(0.0f, -0.05f, 0.0f));
+
 
 		glfwGetCursorPos(window, &mousePosX, &mousePosY);
 		
@@ -236,10 +281,28 @@ int main(int argc, char **argv)
 
 			// TODO uniform들을 어디에 모아두는 것이 좋을까?
 			glm::mat4 mvp = projection * view * sceneObject[i].GetModelMatrix();
-			glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
-			glUniform3f(directionalLightID, 1.0f, 0.0f, -1.0f);
-			glUniform3f(eyePosID, eyePos.x, eyePos.y, eyePos.z);
-
+			
+			if (i == quadID)
+			{
+				glUniformMatrix4fv(tsMatrixID, 1, GL_FALSE, &mvp[0][0]);
+				glUniform3f(tsEyePosID, eyePos.x, eyePos.y, eyePos.z);
+				glUniform3f(lightPosID, 
+					sceneObject[lightID].GetPosition().x, 
+					sceneObject[lightID].GetPosition().y, 
+					sceneObject[lightID].GetPosition().z);
+				
+				glUniform3f(lightColorID, 1.0f, 1.0f, 1.0f);
+				glUniform3f(materialAmbientID, 0.0, 0.0, 0.0);
+				glUniform3f(materialDiffuseID, 0.3, 0.3, 0.3);
+				glUniform3f(materialSpecualrID, 0.5, 0.5, 0.5);
+				glUniform1f(materialShininessID, 32.0);
+			}
+			else
+			{
+				glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
+				glUniform3f(eyePosID, eyePos.x, eyePos.y, eyePos.z);
+				glUniform3f(directionalLightID, 1.0f, 0.0f, -1.0f);
+			}
 			// 4는 layout 총 개수
 			for (int j = 0; j < 4; j++)
 			{

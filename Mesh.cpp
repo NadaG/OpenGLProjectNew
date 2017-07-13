@@ -13,7 +13,7 @@ Mesh::Mesh(MeshType meshType)
 
 void Mesh::LoadMesh(const MeshType& meshType)
 {
-	float scale = 1.0f;
+	float scale = 3.0f;
 	switch (meshType)
 	{
 	case TORUS:

@@ -51,6 +51,12 @@
     <None Include="PhongShader.fs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="LightShader.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="LightShader.vs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderLoader.h">

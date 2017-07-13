@@ -24,6 +24,8 @@ public:
 	void Rotate(const glm::vec3& vec);
 	void Scale(const glm::vec3& vec);
 
+	glm::vec3 GetPosition() { return glm::vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]); }
+
 private:
 	int id;
 	static int objectNum;

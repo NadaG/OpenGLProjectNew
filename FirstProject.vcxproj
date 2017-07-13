@@ -141,6 +141,8 @@
     <ClCompile Include="ShaderLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="LightShader.fs" />
+    <None Include="LightShader.vs" />
     <None Include="packages.config" />
     <None Include="PhongShader.fs" />
     <None Include="PhongShader.vs" />
