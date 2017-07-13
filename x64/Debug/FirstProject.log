@@ -1,4 +1,4 @@
-﻿  main.cpp
+﻿  SphereObject.cpp
 c:\users\render4\downloads\opencv\build\include\opencv2\core\mat.hpp(2586): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\downloads\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\downloads\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
@@ -9,8 +9,30 @@ c:\users\render4\downloads\opencv\build\include\opencv2\imgproc.hpp(592): warnin
 c:\users\render4\downloads\opencv\build\include\opencv2\stitching\detail\motion_estimators.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\downloads\opencv\build\include\opencv2\video\tracking.hpp(532): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\shaderloader.h(30): warning C4267: 'return': conversion from 'size_t' to 'const int', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\main.cpp(296): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\sceneobject.h(19): warning C4172: returning address of local variable or temporary
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\shaderloader.h(31): warning C4172: returning address of local variable or temporary
+  QuadObject.cpp
+c:\users\render4\downloads\opencv\build\include\opencv2\core\mat.hpp(2586): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\flann\dist.h : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\imgproc.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\imgproc.hpp(592): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\stitching\detail\motion_estimators.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\video\tracking.hpp(532): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\shaderloader.h(30): warning C4267: 'return': conversion from 'size_t' to 'const int', possible loss of data
+  PointLightObject.cpp
+c:\users\render4\downloads\opencv\build\include\opencv2\core\mat.hpp(2586): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\flann\dist.h : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\imgproc.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\imgproc.hpp(592): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\stitching\detail\motion_estimators.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\downloads\opencv\build\include\opencv2\video\tracking.hpp(532): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\shaderloader.h(30): warning C4267: 'return': conversion from 'size_t' to 'const int', possible loss of data
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  main.cpp
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Debug\FirstProject.exe
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Debug\FirstProject.pdb (Partial PDB)

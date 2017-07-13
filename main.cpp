@@ -1,7 +1,9 @@
 #include "SceneObject.h"
+#include "PointLightObject.h"
 
 // TODO lighting map
-
+// TODO object class seperate
+// TODO object uniform seperate
 
 using namespace std;
 
@@ -69,13 +71,16 @@ int main(int argc, char **argv)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// texture 생성
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	GLuint diffuseMap;
+	glGenTextures(1, &diffuseMap);
+	glBindTexture(GL_TEXTURE_2D, diffuseMap);
 
 	// image width and height
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
 	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, diffuseMap);
 
 	// VAO 생성
 	GLuint VertexArrayID;
@@ -100,31 +105,30 @@ int main(int argc, char **argv)
 	lightShader.AddLayout(LAYOUT_COLOR, 3);
 
 	// generate scene objects
-	SceneObject sceneObject[] =
-	{
-		textureShader,
-		phongShader,
-		lightShader
-	};
-	
+	SceneObject* sceneObjects[3];
+
+	sceneObjects[0] = new PointLightObject(textureShader);
+	sceneObjects[1] = new PointLightObject(phongShader);
+	sceneObjects[2] = new PointLightObject(lightShader);
+
 	// uniform location
 	int sphereID = 1;
 	int quadID = 0;
 	int lightID = 2;
-	GLuint matrixID = glGetUniformLocation(sceneObject[sphereID].GetShaderProgramID(), "MVP");
-	GLuint directionalLightID = glGetUniformLocation(sceneObject[sphereID].GetShaderProgramID(), "lightDirection");
-	GLuint eyePosID = glGetUniformLocation(sceneObject[sphereID].GetShaderProgramID(), "eyePos");
+	GLuint matrixID = glGetUniformLocation(sceneObjects[sphereID]->GetShaderProgramID(), "MVP");
+	GLuint directionalLightID = glGetUniformLocation(sceneObjects[sphereID]->GetShaderProgramID(), "lightDirection");
+	GLuint eyePosID = glGetUniformLocation(sceneObjects[sphereID]->GetShaderProgramID(), "eyePos");
 
-	GLuint tsMatrixID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "MVP");
-	GLuint lightPosID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "lightPos");
-	GLuint lightColorID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "lightColor");
-	GLuint tsEyePosID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "eyePos");
-	GLuint materialDiffuseID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "material.diffuse");
-	GLuint materialAmbientID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "material.ambient");
-	GLuint materialSpecualrID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "material.specular");
-	GLuint materialShininessID = glGetUniformLocation(sceneObject[quadID].GetShaderProgramID(), "material.shininess");
+	GLuint tsMatrixID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "MVP");
+	GLuint lightPosID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "lightPos");
+	GLuint lightColorID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "lightColor");
+	GLuint tsEyePosID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "eyePos");
+	GLuint materialDiffuseID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.diffuse");
+	GLuint materialAmbientID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.ambient");
+	GLuint materialSpecualrID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.specular");
+	GLuint materialShininessID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.shininess");
 
-	GLuint lsMatrixID = glGetUniformLocation(sceneObject[lightID].GetShaderProgramID(), "MVP");
+	GLuint lsMatrixID = glGetUniformLocation(sceneObjects[lightID]->GetShaderProgramID(), "MVP");
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 
@@ -137,7 +141,7 @@ int main(int argc, char **argv)
 
 	for (int i = 0; i < objNum; i++)
 	{
-		sceneObject[i].SetMesh(meshes[i]);
+		sceneObjects[i]->SetMesh(meshes[i]);
 	}
 	
 	GLfloat** vertexBufferDatas = new GLfloat*[objNum];
@@ -145,23 +149,23 @@ int main(int argc, char **argv)
 	for (int i = 0; i < objNum; i++)
 	{
 		int floatNum = 0;
-		if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_POSITION))
+		if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_POSITION))
 			floatNum += 3;
-		if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_COLOR))
+		if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_COLOR))
 			floatNum += 3;
-		if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_NORMAL))
+		if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_NORMAL))
 			floatNum += 3;
-		if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_UV))
+		if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_UV))
 			floatNum += 2;
 
-		sceneObject[i].GetShaderProgram().SetFloatNum(floatNum);
+		sceneObjects[i]->GetShaderProgram().SetFloatNum(floatNum);
 
-		Mesh mesh = sceneObject[i].GetMesh();
+		Mesh mesh = sceneObjects[i]->GetMesh();
 		vertexBufferDatas[i] = new GLfloat[mesh.GetVertexNum() * floatNum];
 		for (int j = 0; j < mesh.GetVertexNum(); j++)
 		{
 			int offset = 0;
-			if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_POSITION))
+			if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_POSITION))
 			{
 				vertexBufferDatas[i][j * floatNum + offset] = mesh.GetVertice(j).position.x;
 				vertexBufferDatas[i][j * floatNum + offset + 1] = mesh.GetVertice(j).position.y;
@@ -169,7 +173,7 @@ int main(int argc, char **argv)
 				offset += 3;
 			}
 
-			if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_COLOR))
+			if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_COLOR))
 			{
 				vertexBufferDatas[i][j * floatNum + offset] = 1.0f;
 				vertexBufferDatas[i][j * floatNum + offset + 1] = 1.0f;
@@ -177,7 +181,7 @@ int main(int argc, char **argv)
 				offset += 3;
 			}
 
-			if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_NORMAL))
+			if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_NORMAL))
 			{
 				vertexBufferDatas[i][j * floatNum + offset] = mesh.GetVertice(j).normal.x;
 				vertexBufferDatas[i][j * floatNum + offset + 1] = mesh.GetVertice(j).normal.y;
@@ -185,7 +189,7 @@ int main(int argc, char **argv)
 				offset += 3;
 			}
 
-			if (sceneObject[i].GetShaderProgram().IsLayoutExist(LAYOUT_UV))
+			if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_UV))
 			{
 				vertexBufferDatas[i][j * floatNum + offset] = mesh.GetVertice(j).uv.x;
 				vertexBufferDatas[i][j * floatNum + offset + 1] = mesh.GetVertice(j).uv.y;
@@ -202,50 +206,56 @@ int main(int argc, char **argv)
 	for (int i = 0; i < objNum; i++)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[i]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * meshes[i].GetVertexNum() * sceneObject[i].GetShaderProgram().GetFloatNum(), vertexBufferDatas[i], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * meshes[i].GetVertexNum() * sceneObjects[i]->GetShaderProgram().GetFloatNum(), vertexBufferDatas[i], GL_STATIC_DRAW);
 	}
 
 	double mousePosX = 0.0, mousePosY = 0.0, lastMousePosX = 0.0, lastMousePosY = 0.0;
 	float cameraDeltaMove = 0.3f;
 
 	//sceneObject[quadID].Translate(glm::vec3(0.0f, 0.0f, -3.0f));
-	sceneObject[lightID].Scale(glm::vec3(0.5f, 0.5f, 0.5f));
+	sceneObjects[lightID]->Scale(glm::vec3(0.5f, 0.5f, 0.5f));
+	
+	for (int i = 0; i < objNum; i++)
+		sceneObjects[i]->Awake();
 	// SRT의 순서대로 곱이 동작한다.
 	do
 	{
 		// TODO 매 프레임마다 position 과 normal을 보내줘야 할듯
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		for (int i = 0; i < objNum; i++)
+			sceneObjects[i]->Update();
+
 		if (glfwGetKey(window, GLFW_KEY_A))
-			sceneObject[sphereID].Translate(glm::vec3(-0.05f, 0.0f, 0.0f));
+			sceneObjects[sphereID]->Translate(glm::vec3(-0.05f, 0.0f, 0.0f));
 		else if (glfwGetKey(window, GLFW_KEY_D))
-			sceneObject[sphereID].Translate(glm::vec3(0.05f, 0.0f, 0.0f));
+			sceneObjects[sphereID]->Translate(glm::vec3(0.05f, 0.0f, 0.0f));
 
 		if (glfwGetKey(window, GLFW_KEY_Q))
-			sceneObject[sphereID].Translate(glm::vec3(0.0f, 0.0f, 0.05f));
+			sceneObjects[sphereID]->Translate(glm::vec3(0.0f, 0.0f, 0.05f));
 		else if (glfwGetKey(window, GLFW_KEY_E))
-			sceneObject[sphereID].Translate(glm::vec3(0.0f, 0.0f, -0.05f));
+			sceneObjects[sphereID]->Translate(glm::vec3(0.0f, 0.0f, -0.05f));
 
 		if (glfwGetKey(window, GLFW_KEY_W))
-			sceneObject[sphereID].Translate(glm::vec3(0.0f, 0.05f, 0.0f));
+			sceneObjects[sphereID]->Translate(glm::vec3(0.0f, 0.05f, 0.0f));
 		else if (glfwGetKey(window, GLFW_KEY_S))
-			sceneObject[sphereID].Translate(glm::vec3(0.0f, -0.05f, 0.0f));
+			sceneObjects[sphereID]->Translate(glm::vec3(0.0f, -0.05f, 0.0f));
 
 
 		if (glfwGetKey(window, GLFW_KEY_J))
-			sceneObject[lightID].Translate(glm::vec3(-0.05f, 0.0f, 0.0f));
+			sceneObjects[lightID]->Translate(glm::vec3(-0.05f, 0.0f, 0.0f));
 		else if (glfwGetKey(window, GLFW_KEY_L))
-			sceneObject[lightID].Translate(glm::vec3(0.05f, 0.0f, 0.0f));
+			sceneObjects[lightID]->Translate(glm::vec3(0.05f, 0.0f, 0.0f));
 
 		if (glfwGetKey(window, GLFW_KEY_U))
-			sceneObject[lightID].Translate(glm::vec3(0.0f, 0.0f, 0.05f));
+			sceneObjects[lightID]->Translate(glm::vec3(0.0f, 0.0f, 0.05f));
 		else if (glfwGetKey(window, GLFW_KEY_O))
-			sceneObject[lightID].Translate(glm::vec3(0.0f, 0.0f, -0.05f));
+			sceneObjects[lightID]->Translate(glm::vec3(0.0f, 0.0f, -0.05f));
 
 		if (glfwGetKey(window, GLFW_KEY_I))
-			sceneObject[lightID].Translate(glm::vec3(0.0f, 0.05f, 0.0f));
+			sceneObjects[lightID]->Translate(glm::vec3(0.0f, 0.05f, 0.0f));
 		else if (glfwGetKey(window, GLFW_KEY_K))
-			sceneObject[lightID].Translate(glm::vec3(0.0f, -0.05f, 0.0f));
+			sceneObjects[lightID]->Translate(glm::vec3(0.0f, -0.05f, 0.0f));
 
 
 		glfwGetCursorPos(window, &mousePosX, &mousePosY);
@@ -270,7 +280,7 @@ int main(int argc, char **argv)
 		// 사용할 셰이더 프로그램 및 오브젝트 프로그램
 		for (int i = 0; i < objNum; i++)
 		{
-			ShaderProgram shaderProgram = sceneObject[i].GetShaderProgram();
+			ShaderProgram shaderProgram = sceneObjects[i]->GetShaderProgram();
 			glUseProgram(shaderProgram.GetShaderProgramID());
 			glm::mat4 view = glm::lookAt
 			(
@@ -280,21 +290,21 @@ int main(int argc, char **argv)
 			);
 
 			// TODO uniform들을 어디에 모아두는 것이 좋을까?
-			glm::mat4 mvp = projection * view * sceneObject[i].GetModelMatrix();
+			glm::mat4 mvp = projection * view * sceneObjects[i]->GetModelMatrix();
 			
 			if (i == quadID)
 			{
 				glUniformMatrix4fv(tsMatrixID, 1, GL_FALSE, &mvp[0][0]);
 				glUniform3f(tsEyePosID, eyePos.x, eyePos.y, eyePos.z);
 				glUniform3f(lightPosID, 
-					sceneObject[lightID].GetPosition().x, 
-					sceneObject[lightID].GetPosition().y, 
-					sceneObject[lightID].GetPosition().z);
+					sceneObjects[lightID]->GetPosition().x,
+					sceneObjects[lightID]->GetPosition().y,
+					sceneObjects[lightID]->GetPosition().z);
 				
 				glUniform3f(lightColorID, 1.0f, 1.0f, 1.0f);
-				glUniform3f(materialAmbientID, 0.0, 0.0, 0.0);
-				glUniform3f(materialDiffuseID, 0.3, 0.3, 0.3);
-				glUniform3f(materialSpecualrID, 0.5, 0.5, 0.5);
+				glUniform3f(materialAmbientID, 0.1, 0.2, 0.1);
+				glUniform3f(materialDiffuseID, 0.1, 0.3, 0.1);
+				glUniform3f(materialSpecualrID, 0.1, 0.4, 0.2);
 				glUniform1f(materialShininessID, 32.0);
 			}
 			else
@@ -322,7 +332,7 @@ int main(int argc, char **argv)
 						shaderProgram.GetLayoutSize((LayoutType)j),
 						GL_FLOAT,
 						GL_FALSE,
-						sizeof(GLfloat) * sceneObject[i].GetShaderProgram().GetFloatNum(), // stride
+						sizeof(GLfloat) * sceneObjects[i]->GetShaderProgram().GetFloatNum(), // stride
 						(void*)(sizeof(GLfloat) * offset) // 하나의 vertex 정보 set에서 해당 layout이 얼마나 떨어져 있는지
 					);
 					offset += shaderProgram.GetLayoutSize((LayoutType)j);
@@ -351,7 +361,7 @@ int main(int argc, char **argv)
 
 	for (int i = 0; i < objNum; i++)
 	{
-		glDeleteProgram(sceneObject[i].GetShaderProgramID());
+		glDeleteProgram(sceneObjects[i]->GetShaderProgramID());
 	}
 
 	glfwTerminate();

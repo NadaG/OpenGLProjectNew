@@ -26,7 +26,11 @@ public:
 
 	glm::vec3 GetPosition() { return glm::vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]); }
 
-private:
+	virtual void Awake() = 0;
+	virtual void Start() = 0;
+	virtual void Update() = 0;
+
+protected:
 	int id;
 	static int objectNum;
 
