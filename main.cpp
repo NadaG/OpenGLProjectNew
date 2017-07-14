@@ -388,9 +388,6 @@ int main(int argc, char **argv)
 		}
 
 		// post effect
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE, colorTex);
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_DEPTH_TEST);
 
@@ -399,6 +396,7 @@ int main(int argc, char **argv)
 		
 		glUseProgram(frameBufferShader.GetShaderProgramID());
 		glBindVertexArray(postEffectVAO);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, colorTex);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		//
