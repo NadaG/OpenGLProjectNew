@@ -11,4 +11,5 @@ public:
 	void Update();
 
 private:
+	float deltaMove = 0.5f;
 };

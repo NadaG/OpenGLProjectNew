@@ -32,4 +32,5 @@ public:
 	const int& GetLayoutSize(LayoutType type);
 	const int& GetFloatNum() { return floatNum; }
 	void SetFloatNum(const int& value) { this->floatNum = value; }
+	const int& CalcGetFloatNum();
 };

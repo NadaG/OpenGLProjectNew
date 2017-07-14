@@ -2,9 +2,8 @@
 #include "QuadObject.h"
 #include "SphereObject.h"
 
-// TODO specular light map
 // TODO object uniform seperate
-// TODO
+// TODO point light, directional light, spot light
 
 using namespace std;
 
@@ -51,48 +50,48 @@ int main(int argc, char **argv)
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
-	// texture parameter 설정
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 	// load image
 	cv::Mat dImage = cv::imread("Container_DiffuseMap.png", 1);
 	GLubyte* dImageData = new GLubyte[dImage.rows * dImage.cols * 3];
 	GenerateDatas(dImageData, dImage);
 
+	cv::Mat sImage = cv::imread("Container_SpecularMap.png", 1);
+	GLubyte* sImageData = new GLubyte[sImage.rows * sImage.cols * 3];
+	GenerateDatas(sImageData, sImage);
 	// texture 생성
 	GLuint diffuseMap;
 	glGenTextures(1, &diffuseMap);
 	glBindTexture(GL_TEXTURE_2D, diffuseMap);
-	// 뭐하는 함수인가?
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, dImage.cols, dImage.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, dImageData);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, diffuseMap);
 
-	cv::Mat sImage = cv::imread("Container_SpecularMap.png", 1);
-	GLubyte* sImageData = new GLubyte[sImage.rows * sImage.cols * 3];
-	GenerateDatas(sImageData, sImage);
-
 	GLuint specularMap;
 	glGenTextures(1, &specularMap);
-	
+	glBindTexture(GL_TEXTURE_2D, specularMap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sImage.cols, sImage.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, sImageData);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	// texture parameter 설정, 만들고 나서 꼭 설정해줄 것
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, specularMap);
 	
-	// VAO 생성
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
-	int objNum = 3;
 	ShaderProgram phongShader("PhongShader.vs", "PhongShader.fs");
 	ShaderProgram textureShader("TextureShader.vs", "TextureShader.fs");
 	ShaderProgram lightShader("LightShader.vs", "LightShader.fs");
+	ShaderProgram frameBufferShader("FrameBufferObject.vs", "FrameBufferObject.fs");
 
 	phongShader.AddLayout(LAYOUT_POSITION, 3);
 	phongShader.AddLayout(LAYOUT_COLOR, 3);
@@ -106,59 +105,85 @@ int main(int argc, char **argv)
 	lightShader.AddLayout(LAYOUT_POSITION, 3);
 	lightShader.AddLayout(LAYOUT_COLOR, 3);
 
+	frameBufferShader.AddLayout(LAYOUT_POSITION, 2);
+	frameBufferShader.AddLayout(LAYOUT_UV, 2);
+
 	// generate scene objects
+	int objNum = 3; 
 	SceneObject* sceneObjects[3];
-
-	sceneObjects[0] = new QuadObject(textureShader);
-	sceneObjects[1] = new SphereObject(phongShader);
-	sceneObjects[2] = new PointLightObject(lightShader);
-
 	// uniform location
-	int sphereID = 1;
 	int quadID = 0;
+	int sphereID = 1;
 	int lightID = 2;
-	GLuint matrixID = glGetUniformLocation(sceneObjects[sphereID]->GetShaderProgramID(), "MVP");
-	GLuint directionalLightID = glGetUniformLocation(sceneObjects[sphereID]->GetShaderProgramID(), "lightDirection");
-	GLuint eyePosID = glGetUniformLocation(sceneObjects[sphereID]->GetShaderProgramID(), "eyePos");
 
-	GLuint tsMatrixID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "MVP");
-	GLuint lightPosID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "lightPos");
-	GLuint lightColorID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "lightColor");
-	GLuint tsEyePosID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "eyePos");
-	GLuint materialDiffuseID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.diffuse");
-	GLuint materialSpecualrID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.specular");
-	GLuint materialShininessID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.shininess");
+	sceneObjects[quadID] = new QuadObject(textureShader);
+	sceneObjects[sphereID] = new SphereObject(phongShader);
+	sceneObjects[lightID] = new PointLightObject(lightShader);
 
-	GLuint lsMatrixID = glGetUniformLocation(sceneObjects[lightID]->GetShaderProgramID(), "MVP");
+	// frame buffer object 사용해보기
+	GLuint frameBuffer;
+	glGenFramebuffers(1, &frameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	
+	// texture 생성
+	GLuint colorTex;
+	glGenTextures(1, &colorTex);
+	glBindTexture(GL_TEXTURE_2D, colorTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// frame buffer에 color에 대한 texture 연결시키기
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTex, 0);
+	
+	// render buffer 생성
+	GLuint renderBuffer;
+	glGenRenderbuffers(1, &renderBuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	// frame buffer에 depth와 stencil에 대한 texture 연결시키기
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderBuffer);
+	
+	// attachment가 모두 붙여진 후
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		cout << "frame buffer generate error" << endl;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
+	// shader 에서 정의하지 않거나 사용하지 않는다면 -1을 리턴한다
+	GLint matrixID = glGetUniformLocation(sceneObjects[sphereID]->GetShaderProgramID(), "MVP");
+	GLint directionalLightID = glGetUniformLocation(sceneObjects[sphereID]->GetShaderProgramID(), "lightDirection");
+	GLint eyePosID = glGetUniformLocation(sceneObjects[sphereID]->GetShaderProgramID(), "eyePos");
 
+	GLint tsMatrixID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "MVP");
+	GLint lightPosID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "lightPos");
+	GLint lightColorID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "lightColor");
+	GLint tsEyePosID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "eyePos");
+	GLint materialDiffuseID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.diffuse");
+	GLint materialSpecualrID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.specular");
+	GLint materialShininessID = glGetUniformLocation(sceneObjects[quadID]->GetShaderProgramID(), "material.shininess");
+
+	GLint lsMatrixID = glGetUniformLocation(sceneObjects[lightID]->GetShaderProgramID(), "MVP");
+
+	GLint screenTexID = glGetUniformLocation(frameBufferShader.GetShaderProgramID(), "screenTexture");
+	
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 
 	glm::vec3 eyePos(0.0f, 0.0f, 10.0f);
 
 	Mesh *meshes = new Mesh[objNum];
-	meshes[0].LoadMesh(QUAD);
-	meshes[1].LoadMesh(SPHERE);
-	meshes[2].LoadMesh(SPHERE);
+	meshes[quadID].LoadMesh(QUAD);
+	meshes[sphereID].LoadMesh(SPHERE);
+	meshes[lightID].LoadMesh(SPHERE);
 
 	for (int i = 0; i < objNum; i++)
-	{
 		sceneObjects[i]->SetMesh(meshes[i]);
-	}
 	
 	GLfloat** vertexBufferDatas = new GLfloat*[objNum];
-	
+
 	for (int i = 0; i < objNum; i++)
 	{
-		int floatNum = 0;
-		if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_POSITION))
-			floatNum += 3;
-		if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_COLOR))
-			floatNum += 3;
-		if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_NORMAL))
-			floatNum += 3;
-		if (sceneObjects[i]->GetShaderProgram().IsLayoutExist(LAYOUT_UV))
-			floatNum += 2;
-
+		int floatNum = sceneObjects[i]->GetShaderProgram().CalcGetFloatNum();
 		sceneObjects[i]->GetShaderProgram().SetFloatNum(floatNum);
 
 		Mesh mesh = sceneObjects[i]->GetMesh();
@@ -199,29 +224,84 @@ int main(int argc, char **argv)
 		}
 	}
 
-	// 버텍스들을 담을 버퍼를 만들고
+	// VAO 생성
+	GLuint* sceneObjectVAOs = new GLuint[objNum];
+	glGenVertexArrays(objNum, sceneObjectVAOs);
+	
+	// 버텍스들을 담을 버퍼를 만들고(오브젝트당 하나의 buffer를 사용)
 	// bufferdata 함수를 통해 버퍼에 데이터를 집어넣음
-	// buffer를 하나로 만들어 glBufferData를 한번만 호출하도록 하여 overhead를 줄일 수 있다.
+	// buffer를 하나(position, color, normal, uv)등으로 만들어 glBufferData를 한번만 호출하도록 하여 overhead를 줄일 수 있다.
 	GLuint* vertexBuffers = new GLuint[objNum];
 	glGenBuffers(objNum, vertexBuffers);
 	for (int i = 0; i < objNum; i++)
 	{
+		glBindVertexArray(sceneObjectVAOs[i]);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[i]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * meshes[i].GetVertexNum() * sceneObjects[i]->GetShaderProgram().GetFloatNum(), vertexBufferDatas[i], GL_STATIC_DRAW);
+	
+		ShaderProgram shaderProgram = sceneObjects[i]->GetShaderProgram();
+		int offset = 0;
+		for (int j = 0; j < 4; j++)
+		{
+			if (shaderProgram.IsLayoutExist((LayoutType)j))
+			{
+				glEnableVertexAttribArray(j);
+				glVertexAttribPointer(
+					j, // layout(location)에 들어갈 숫자이다.
+					shaderProgram.GetLayoutSize((LayoutType)j),
+					GL_FLOAT,
+					GL_FALSE,
+					sizeof(GLfloat) * sceneObjects[i]->GetShaderProgram().GetFloatNum(), // stride
+					(void*)(sizeof(GLfloat) * offset) // 하나의 vertex 정보 set에서 해당 layout이 얼마나 떨어져 있는지
+				);
+				offset += shaderProgram.GetLayoutSize((LayoutType)j);
+			}
+		}
 	}
+
+	// post effect
+
+	int postEffectVertexNum = 6, postEffectFloatNum = 5;
+	float sss = 1.0f;
+	GLfloat postEffectVertices[] =
+	{
+		-sss, sss, 0.0f, 1.0f,
+		-sss, -sss, 0.0f, 0.0f,
+		sss, -sss, 1.0f, 0.0f,
+
+		-sss, sss, 0.0f, 1.0f,
+		sss, -sss, 1.0f, 0.0f,
+		sss, sss, 1.0f, 1.0f
+	};
+
+	GLuint postEffectVAO;
+	glGenVertexArrays(1, &postEffectVAO);
+	GLuint postEffectVBO;
+	glGenBuffers(1, &postEffectVBO);
+	glBindVertexArray(postEffectVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, postEffectVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(postEffectVertices), &postEffectVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+	//
+
+	//glUniform1i(screenTexID, 0);
 
 	double mousePosX = 0.0, mousePosY = 0.0, lastMousePosX = 0.0, lastMousePosY = 0.0;
 	float cameraDeltaMove = 0.3f;
 
-	//sceneObject[quadID].Translate(glm::vec3(0.0f, 0.0f, -3.0f));
-	sceneObjects[lightID]->Scale(glm::vec3(0.5f, 0.5f, 0.5f));
-	
 	for (int i = 0; i < objNum; i++)
 		sceneObjects[i]->Awake();
 	// SRT의 순서대로 곱이 동작한다.
 	do
 	{
 		// TODO 매 프레임마다 position 과 normal을 보내줘야 할듯
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		glEnable(GL_DEPTH_TEST);
+
+		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		for (int i = 0; i < objNum; i++)
@@ -261,6 +341,8 @@ int main(int argc, char **argv)
 			// TODO uniform들을 따로 모아두는 것이 좋을 거 같다
 			glm::mat4 mvp = projection * view * sceneObjects[i]->GetModelMatrix();
 			
+			glBindVertexArray(sceneObjectVAOs[i]);
+
 			if (i == quadID)
 			{
 				glActiveTexture(GL_TEXTURE0);
@@ -287,6 +369,7 @@ int main(int argc, char **argv)
 				glUniform3f(eyePosID, eyePos.x, eyePos.y, eyePos.z);
 				glUniform3f(directionalLightID, 1.0f, 0.0f, -1.0f);
 			}
+			
 			// 4는 layout 총 개수
 			for (int j = 0; j < 4; j++)
 			{
@@ -294,25 +377,6 @@ int main(int argc, char **argv)
 					glEnableVertexAttribArray(j);
 			}
 
-			glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[i]);
-
-			int offset = 0;
-			for (int j = 0; j < 4; j++)
-			{
-				if (shaderProgram.IsLayoutExist((LayoutType)j))
-				{
-					glVertexAttribPointer(
-						j, // layout(location)에 들어갈 숫자이다.
-						shaderProgram.GetLayoutSize((LayoutType)j),
-						GL_FLOAT,
-						GL_FALSE,
-						sizeof(GLfloat) * sceneObjects[i]->GetShaderProgram().GetFloatNum(), // stride
-						(void*)(sizeof(GLfloat) * offset) // 하나의 vertex 정보 set에서 해당 layout이 얼마나 떨어져 있는지
-					);
-					offset += shaderProgram.GetLayoutSize((LayoutType)j);
-				}
-			}
-			
 			glDrawArrays(GL_TRIANGLES, 0, meshes[i].GetVertexNum() * 3);
 
 			// 4는 layout 총 개수
@@ -323,6 +387,22 @@ int main(int argc, char **argv)
 			}
 		}
 
+		// post effect
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE, colorTex);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glDisable(GL_DEPTH_TEST);
+
+		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		
+		glUseProgram(frameBufferShader.GetShaderProgramID());
+		glBindVertexArray(postEffectVAO);
+		glBindTexture(GL_TEXTURE_2D, colorTex);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		//
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -331,7 +411,7 @@ int main(int argc, char **argv)
 		glfwWindowShouldClose(window) == 0);
 
 	glDeleteBuffers(objNum, vertexBuffers);
-	glDeleteVertexArrays(1, &VertexArrayID);
+	glDeleteVertexArrays(objNum, sceneObjectVAOs);
 
 	for (int i = 0; i < objNum; i++)
 	{

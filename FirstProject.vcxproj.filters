@@ -69,6 +69,12 @@
     <None Include="LightShader.vs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="FrameBufferObject.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="FrameBufferObject.vs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderLoader.h">

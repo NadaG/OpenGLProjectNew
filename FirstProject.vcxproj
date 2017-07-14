@@ -144,6 +144,8 @@
     <ClCompile Include="SphereObject.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="FrameBufferObject.fs" />
+    <None Include="FrameBufferObject.vs" />
     <None Include="LightShader.fs" />
     <None Include="LightShader.vs" />
     <None Include="packages.config" />
