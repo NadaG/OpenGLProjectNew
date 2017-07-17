@@ -75,6 +75,12 @@
     <None Include="FrameBufferObject.vs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="SkyBoxShader.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SkyBoxShader.vs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderLoader.h">

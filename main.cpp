@@ -13,6 +13,7 @@ int height = 768;
 // w = 0 이면 (x, y, z, 0)이므로 방향이다
 
 void GenerateDatas(GLubyte* data, cv::Mat image);
+GLuint LoadCubeMap(vector<string> images);
 
 // 단 한 화면에 두 삼각형이 동시에 존재하여야한다.
 int main(int argc, char **argv)
@@ -58,6 +59,20 @@ int main(int argc, char **argv)
 	cv::Mat sImage = cv::imread("Container_SpecularMap.png", 1);
 	GLubyte* sImageData = new GLubyte[sImage.rows * sImage.cols * 3];
 	GenerateDatas(sImageData, sImage);
+	
+	// sky box image load
+	vector<string> faces
+	{
+		"right.jpg",
+		"left.jpg",
+		"top.jpg",
+		"bottom.jpg",
+		"back.jpg",
+		"front.jpg"
+	};
+	
+	//GLuint cubeMapID = LoadCubeMap(faces);
+	
 	// texture 생성
 	GLuint diffuseMap;
 	glGenTextures(1, &diffuseMap);
@@ -83,8 +98,8 @@ int main(int argc, char **argv)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sImage.cols, sImage.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, sImageData);
 	glGenerateMipmap(GL_TEXTURE_2D);
-
 	// texture parameter 설정, 만들고 나서 꼭 설정해줄 것
+	
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, specularMap);
 	
@@ -92,6 +107,7 @@ int main(int argc, char **argv)
 	ShaderProgram textureShader("TextureShader.vs", "TextureShader.fs");
 	ShaderProgram lightShader("LightShader.vs", "LightShader.fs");
 	ShaderProgram frameBufferShader("FrameBufferObject.vs", "FrameBufferObject.fs");
+	ShaderProgram skyBoxShader("SkyBoxShader.vs", "SkyBoxShader.fs");
 
 	phongShader.AddLayout(LAYOUT_POSITION, 3);
 	phongShader.AddLayout(LAYOUT_COLOR, 3);
@@ -107,6 +123,8 @@ int main(int argc, char **argv)
 
 	frameBufferShader.AddLayout(LAYOUT_POSITION, 2);
 	frameBufferShader.AddLayout(LAYOUT_UV, 2);
+
+	skyBoxShader.AddLayout(LAYOUT_POSITION, 3);
 
 	// generate scene objects
 	int objNum = 3; 
@@ -148,6 +166,7 @@ int main(int argc, char **argv)
 	{
 		cout << "frame buffer generate error" << endl;
 	}
+	// defualt frame buffer, 화면에 그려짐
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
 	// shader 에서 정의하지 않거나 사용하지 않는다면 -1을 리턴한다
@@ -167,6 +186,13 @@ int main(int argc, char **argv)
 
 	GLint screenTexID = glGetUniformLocation(frameBufferShader.GetShaderProgramID(), "screenTexture");
 	
+	GLint skyboxID = glGetUniformLocation(skyBoxShader.GetShaderProgramID(), "skybox");
+	GLint skyboxViewID = glGetUniformLocation(skyBoxShader.GetShaderProgramID(), "view");
+	GLint skyboxProjectionID = glGetUniformLocation(skyBoxShader.GetShaderProgramID(), "projection");
+
+	glUseProgram(skyBoxShader.GetShaderProgramID());
+	glUniform1f(skyboxID, 0);
+
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 
 	glm::vec3 eyePos(0.0f, 0.0f, 10.0f);
@@ -259,8 +285,63 @@ int main(int argc, char **argv)
 		}
 	}
 
-	// post effect
+	float skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
 
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f
+	};
+
+	// skybox VAO
+	GLuint skyboxVAO, skyboxVBO;
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	//
+
+	// post effect
 	int postEffectVertexNum = 6, postEffectFloatNum = 5;
 	float sss = 1.0f;
 	GLfloat postEffectVertices[] =
@@ -326,17 +407,20 @@ int main(int argc, char **argv)
 
 		lastMousePosX = mousePosX;
 		lastMousePosY = mousePosY;
+		
+		glm::mat4 view = glm::lookAt
+		(
+			eyePos,
+			glm::vec3(0, 0, 0),
+			glm::vec3(0, 1, 0)
+		);
+		
 		// 사용할 셰이더 프로그램 및 오브젝트 프로그램
 		for (int i = 0; i < objNum; i++)
 		{
 			ShaderProgram shaderProgram = sceneObjects[i]->GetShaderProgram();
 			glUseProgram(shaderProgram.GetShaderProgramID());
-			glm::mat4 view = glm::lookAt
-			(
-				eyePos,
-				glm::vec3(0, 0, 0),
-				glm::vec3(0, 1, 0)
-			);
+			
 
 			// TODO uniform들을 따로 모아두는 것이 좋을 거 같다
 			glm::mat4 mvp = projection * view * sceneObjects[i]->GetModelMatrix();
@@ -387,6 +471,20 @@ int main(int argc, char **argv)
 			}
 		}
 
+		// skybox load
+		/*glDepthFunc(GL_LEQUAL);
+		glUseProgram(skyBoxShader.GetShaderProgramID());
+		glUniform1f(skyboxID, 0);
+		glUniformMatrix4fv(skyboxViewID, 1, GL_FALSE, &view[0][0]);
+		glUniformMatrix4fv(skyboxProjectionID, 1, GL_FALSE, &projection[0][0]);
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapID);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS);*/
+		//
+
 		// post effect
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_DEPTH_TEST);
@@ -433,3 +531,38 @@ void GenerateDatas(GLubyte* data, cv::Mat image)
 		}
 	}
 }
+
+GLuint LoadCubeMap(vector<string> images)
+{
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	for (int i = 0; i < 6; i++)
+	{
+		cv::Mat image = cv::imread(images[i]);
+		GLubyte* data = new GLubyte[image.rows * image.cols * 3];
+
+		for (int j = 0; j < image.rows; j++)
+		{
+			for (int k = 0; k < image.cols; k++)
+			{
+				for (int l = 0; l < 3; l++)
+				{
+					data[j*image.cols * 3 + k * 3 + l] = image.at<cv::Vec3b>(k, j)[2 - l];
+				}
+			}
+		}
+
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, image.cols, image.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return textureID;
+}
+

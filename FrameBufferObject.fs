@@ -58,7 +58,7 @@ void main()
 
 	vec3 col = vec3(0.0);
 	for(int i = 0; i < 9; i++)
-		col += sampleTex[i] * blurKernel[i] / 16;
+		col += sampleTex[i] * kernel[i];
 
 	color = col;
 }

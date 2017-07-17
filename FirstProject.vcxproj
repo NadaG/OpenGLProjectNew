@@ -151,6 +151,8 @@
     <None Include="packages.config" />
     <None Include="PhongShader.fs" />
     <None Include="PhongShader.vs" />
+    <None Include="SkyBoxShader.fs" />
+    <None Include="SkyBoxShader.vs" />
     <None Include="TextureShader.fs" />
     <None Include="TextureShader.vs" />
   </ItemGroup>
