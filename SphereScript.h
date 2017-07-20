@@ -1,11 +1,9 @@
 #pragma once
 #include "SceneObject.h"
 
-class SphereObject : public SceneObject
+class SphereScript : public Script
 {
 public:
-	SphereObject(ShaderProgram shaderProgram);
-
 	void Awake();
 	void Start();
 	void Update();

@@ -16,7 +16,10 @@
     <Filter Include="Shader Files">
       <UniqueIdentifier>{a039cd15-dea5-4f8d-833a-0bb915ba6e22}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SceneObject">
+    <Filter Include="Shader">
+      <UniqueIdentifier>{6566653c-63f4-44a0-a419-59448b457aec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripts">
       <UniqueIdentifier>{2a2d6b51-9bdd-4e98-8a1c-25206f732c29}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -39,17 +42,32 @@
     <ClCompile Include="InputManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PointLightObject.cpp">
-      <Filter>SceneObject</Filter>
+    <ClCompile Include="PhongShader.cpp">
+      <Filter>Shader</Filter>
     </ClCompile>
-    <ClCompile Include="QuadObject.cpp">
-      <Filter>SceneObject</Filter>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SphereObject.cpp">
-      <Filter>SceneObject</Filter>
+    <ClCompile Include="FrameBufferObject.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CubeObject.cpp">
-      <Filter>SceneObject</Filter>
+    <ClCompile Include="SceneScript.cpp">
+      <Filter>Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="LightScript.cpp">
+      <Filter>Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="main2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraScript.cpp">
+      <Filter>Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -84,6 +102,12 @@
     <None Include="SkyBoxShader.vs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="SimpleDepthShader.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SimpleDepthShader.fs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderLoader.h">
@@ -113,17 +137,29 @@
     <ClInclude Include="InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PointLightObject.h">
-      <Filter>SceneObject</Filter>
+    <ClInclude Include="PhongShader.h">
+      <Filter>Shader</Filter>
     </ClInclude>
-    <ClInclude Include="QuadObject.h">
-      <Filter>SceneObject</Filter>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SphereObject.h">
-      <Filter>SceneObject</Filter>
+    <ClInclude Include="FrameBufferObject.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CubeObject.h">
-      <Filter>SceneObject</Filter>
+    <ClInclude Include="SceneScript.h">
+      <Filter>Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="LightScript.h">
+      <Filter>Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraScript.h">
+      <Filter>Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

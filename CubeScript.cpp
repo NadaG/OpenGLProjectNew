@@ -1,10 +1,5 @@
 #include "CubeObject.h"
 
-CubeObject::CubeObject(ShaderProgram shaderProgram)
-{
-	this->shaderProgram = shaderProgram;
-}
-
 void CubeObject::Awake()
 {
 	this->Translate(glm::vec3(2.0f, 0.0f, 2.0f));

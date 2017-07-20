@@ -5,7 +5,6 @@
 class ShaderProgram
 {
 private:
-
 	// main에서 여러 개의 ShaderLoader 객체를 사용할 수 있도록 하기
 	GLuint shaderProgram;
 
@@ -14,6 +13,9 @@ private:
 
 	int floatNum;
 	std::vector<std::pair<LayoutType, int> > layouts;
+
+protected:
+	void SetMatrix(string name, glm::mat4 mat);
 
 public:
 

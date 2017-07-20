@@ -109,6 +109,15 @@ void Mesh::LoadMesh(const MeshType& meshType)
 			vertices[i].position.z = skyboxVertices[i * 3 + 2];
 		}
 
+		for (int i = 0; i < 36; i += 3)
+		{
+			vertices[i].normal = glm::cross(vertices[i + 2].position - vertices[i].position, 
+				vertices[i + 1].position - vertices[i].position);
+			vertices[i].normal = glm::normalize(vertices[i].normal);
+			vertices[i + 1].normal = vertices[i].normal;
+			vertices[i + 2].normal = vertices[i].normal;
+		}
+
 		vertexNum = 36;
 		drawMode = GL_TRIANGLES;
 		break;

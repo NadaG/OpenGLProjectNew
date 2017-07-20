@@ -1,10 +1,10 @@
 #pragma once
+
 #include "SceneObject.h"
 
-class CubeObject : public SceneObject
+class Light : public SceneObject
 {
 public:
-	CubeObject(ShaderProgram shaderProgram);
 
 	void Awake();
 	void Start();

@@ -1,20 +1,14 @@
-#include "SphereObject.h"
+#include "SphereScript.h"
 
-SphereObject::SphereObject(ShaderProgram shaderProgram)
-{
-	this->shaderProgram = shaderProgram;
-}
-
-void SphereObject::Awake()
-{
-	mesh.LoadMesh(SPHERE);
-}
-
-void SphereObject::Start()
+void SphereScript::Awake()
 {
 }
 
-void SphereObject::Update()
+void SphereScript::Start()
+{
+}
+
+void SphereScript::Update()
 {
 	if (InputManager::GetInstance()->IsKey(GLFW_KEY_A))
 		Translate(glm::vec3(-0.05f, 0.0f, 0.0f));

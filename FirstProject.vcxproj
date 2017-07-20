@@ -133,16 +133,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CubeObject.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CameraScript.cpp" />
+    <ClCompile Include="FrameBufferObject.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="Light.cpp" />
+    <ClCompile Include="LightScript.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="main2.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ObjLoader.cpp" />
-    <ClCompile Include="PointLightObject.cpp" />
-    <ClCompile Include="QuadObject.cpp" />
+    <ClCompile Include="PhongShader.cpp" />
     <ClCompile Include="SceneObject.cpp" />
+    <ClCompile Include="SceneScript.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
-    <ClCompile Include="SphereObject.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FrameBufferObject.fs" />
@@ -152,24 +157,30 @@
     <None Include="packages.config" />
     <None Include="PhongShader.fs" />
     <None Include="PhongShader.vs" />
+    <None Include="SimpleDepthShader.fs" />
+    <None Include="SimpleDepthShader.vs" />
     <None Include="SkyBoxShader.fs" />
     <None Include="SkyBoxShader.vs" />
     <None Include="TextureShader.fs" />
     <None Include="TextureShader.vs" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CubeObject.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="CameraScript.h" />
     <ClInclude Include="DefaultHeader.h" />
     <ClInclude Include="Face.h" />
+    <ClInclude Include="FrameBufferObject.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="LightScript.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="OpenGLHeader.h" />
-    <ClInclude Include="PointLightObject.h" />
-    <ClInclude Include="QuadObject.h" />
+    <ClInclude Include="PhongShader.h" />
     <ClInclude Include="SceneObject.h" />
+    <ClInclude Include="SceneScript.h" />
     <ClInclude Include="ShaderLoader.h" />
-    <ClInclude Include="SphereObject.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

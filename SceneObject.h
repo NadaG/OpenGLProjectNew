@@ -5,6 +5,7 @@
 #include "ShaderLoader.h"
 #include "Mesh.h"
 #include "InputManager.h"
+#include "LightScript.h"
 
 class SceneObject
 {
@@ -14,21 +15,31 @@ public:
 	SceneObject(const ShaderProgram& shaderProgram, const Mesh& mesh);
 	virtual ~SceneObject(){}
 
-	void SetMesh(const Mesh& mesh) { this->mesh = mesh; }
+	void GenerateVBO(const Mesh& mesh);
 	Mesh& GetMesh() { return this->mesh; }
 	const GLuint& GetShaderProgramID() { return this->shaderProgram.GetShaderProgramID(); }
 	ShaderProgram GetShaderProgram() { return this->shaderProgram; }
-	const glm::mat4& GetModelMatrix() { return this->modelMatrix; }
+	const glm::mat4 GetModelMatrix();
+	const GLuint& GetVBO() { return vertexBuffer; }
+	const GLuint& GetVAO() { return vertexArrayObject; }
 
 	void Translate(const glm::vec3& vec);
-	void Rotate(const glm::vec3& vec);
+	void Rotate(const glm::vec3& vec, float angle);
 	void Scale(const glm::vec3& vec);
 
-	glm::vec3 GetPosition() { return glm::vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]); }
+	void AttachScript(SceneScript* sceneScript);
 
-	virtual void Awake() = 0;
-	virtual void Start() = 0;
-	virtual void Update() = 0;
+	glm::vec3 GetPosition() { return positionVector; }
+	glm::vec3 GetScale() { return scaleVector; }
+	glm::mat4 GetRotate() { return rotationMatrix; }
+
+	void SetUniformMatrix4f(string name, glm::mat4 mat);
+	void SetUniformVector3f(string name, glm::vec3 vec);
+	void SetUniformVector3f(string name, float x, float y, float z);
+
+	void ScriptsAwake();
+	void ScriptsStart();
+	void ScriptsUpdate();
 
 protected:
 	int id;
@@ -36,5 +47,12 @@ protected:
 
 	ShaderProgram shaderProgram;
 	Mesh mesh;
-	glm::mat4 modelMatrix;
+	GLuint vertexBuffer;
+	GLuint vertexArrayObject;
+
+	glm::vec3 scaleVector;
+	glm::mat4 rotationMatrix;
+	glm::vec3 positionVector;
+	
+	std::vector<SceneScript*> scripts;
 };
