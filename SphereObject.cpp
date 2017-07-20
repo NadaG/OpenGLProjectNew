@@ -7,6 +7,7 @@ SphereObject::SphereObject(ShaderProgram shaderProgram)
 
 void SphereObject::Awake()
 {
+	mesh.LoadMesh(SPHERE);
 }
 
 void SphereObject::Start()

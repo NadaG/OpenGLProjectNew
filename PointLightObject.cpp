@@ -8,7 +8,7 @@ PointLightObject::PointLightObject(ShaderProgram shaderProgram)
 void PointLightObject::Awake()
 {
 	Scale(glm::vec3(0.1f, 0.1f, 0.1f));
-
+	mesh.LoadMesh(SPHERE);
 }
 
 void PointLightObject::Start()

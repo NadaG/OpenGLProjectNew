@@ -10,10 +10,11 @@ in vec3 outNormal;
 
 void main()
 {
+	vec3 ambient = vec3(0.1, 0.1, 0.1);
 	vec3 diffuse = dot(-normalize(lightDirection), outNormal) * outColor;
 	vec3 eyeDirection = normalize(outPos - eyePos);
 
 	vec3 specular = pow(max(dot(-normalize(reflect(lightDirection, outNormal)), eyeDirection), 0.0), 32) * outColor;
 
-	color = diffuse + specular;
+	color = ambient + diffuse + specular;
 }

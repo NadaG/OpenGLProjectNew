@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CubeObject.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -157,6 +158,7 @@
     <None Include="TextureShader.vs" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CubeObject.h" />
     <ClInclude Include="DefaultHeader.h" />
     <ClInclude Include="Face.h" />
     <ClInclude Include="InputManager.h" />

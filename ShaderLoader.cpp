@@ -105,17 +105,17 @@ const int& ShaderProgram::GetLayoutSize(LayoutType type)
 	return 0;
 }
 
-const int& ShaderProgram::CalcGetFloatNum()
+void ShaderProgram::CalcFloatNum()
 {
 	int ret = 0;
 	if (IsLayoutExist(LAYOUT_POSITION))
-		ret += 3;
+		ret += GetLayoutSize(LAYOUT_POSITION);
 	if (IsLayoutExist(LAYOUT_COLOR))
-		ret += 3;
+		ret += GetLayoutSize(LAYOUT_COLOR);
 	if (IsLayoutExist(LAYOUT_NORMAL))
-		ret += 3;
+		ret += GetLayoutSize(LAYOUT_NORMAL);
 	if (IsLayoutExist(LAYOUT_UV))
-		ret += 2;
-
-	return ret;
+		ret += GetLayoutSize(LAYOUT_UV);
+	
+	floatNum = ret;
 }

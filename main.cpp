@@ -1,6 +1,7 @@
 #include "PointLightObject.h"
 #include "QuadObject.h"
 #include "SphereObject.h"
+#include "CubeObject.h"
 
 // TODO object uniform seperate
 // TODO point light, directional light, spot light
@@ -71,7 +72,7 @@ int main(int argc, char **argv)
 		"front.jpg"
 	};
 	
-	//GLuint cubeMapID = LoadCubeMap(faces);
+	GLuint cubeMapID = LoadCubeMap(faces);
 	
 	// texture 생성
 	GLuint diffuseMap;
@@ -127,16 +128,18 @@ int main(int argc, char **argv)
 	skyBoxShader.AddLayout(LAYOUT_POSITION, 3);
 
 	// generate scene objects
-	int objNum = 3; 
-	SceneObject* sceneObjects[3];
+	int objNum = 4; 
+	SceneObject* sceneObjects[4];
 	// uniform location
 	int quadID = 0;
 	int sphereID = 1;
 	int lightID = 2;
+	int boxID = 3;
 
 	sceneObjects[quadID] = new QuadObject(textureShader);
 	sceneObjects[sphereID] = new SphereObject(phongShader);
 	sceneObjects[lightID] = new PointLightObject(lightShader);
+	sceneObjects[boxID] = new CubeObject(skyBoxShader);
 
 	// frame buffer object 사용해보기
 	GLuint frameBuffer;
@@ -166,6 +169,7 @@ int main(int argc, char **argv)
 	{
 		cout << "frame buffer generate error" << endl;
 	}
+	
 	// defualt frame buffer, 화면에 그려짐
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
@@ -197,20 +201,15 @@ int main(int argc, char **argv)
 
 	glm::vec3 eyePos(0.0f, 0.0f, 10.0f);
 
-	Mesh *meshes = new Mesh[objNum];
-	meshes[quadID].LoadMesh(QUAD);
-	meshes[sphereID].LoadMesh(SPHERE);
-	meshes[lightID].LoadMesh(SPHERE);
-
 	for (int i = 0; i < objNum; i++)
-		sceneObjects[i]->SetMesh(meshes[i]);
-	
+		sceneObjects[i]->Awake();
+
 	GLfloat** vertexBufferDatas = new GLfloat*[objNum];
 
 	for (int i = 0; i < objNum; i++)
 	{
-		int floatNum = sceneObjects[i]->GetShaderProgram().CalcGetFloatNum();
-		sceneObjects[i]->GetShaderProgram().SetFloatNum(floatNum);
+		sceneObjects[i]->GetShaderProgram().CalcFloatNum();
+		int floatNum = sceneObjects[i]->GetShaderProgram().GetFloatNum();
 
 		Mesh mesh = sceneObjects[i]->GetMesh();
 		vertexBufferDatas[i] = new GLfloat[mesh.GetVertexNum() * floatNum];
@@ -263,7 +262,7 @@ int main(int argc, char **argv)
 	{
 		glBindVertexArray(sceneObjectVAOs[i]);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffers[i]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * meshes[i].GetVertexNum() * sceneObjects[i]->GetShaderProgram().GetFloatNum(), vertexBufferDatas[i], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * sceneObjects[i]->GetMesh().GetVertexNum() * sceneObjects[i]->GetShaderProgram().GetFloatNum(), vertexBufferDatas[i], GL_STATIC_DRAW);
 	
 		ShaderProgram shaderProgram = sceneObjects[i]->GetShaderProgram();
 		int offset = 0;
@@ -285,74 +284,18 @@ int main(int argc, char **argv)
 		}
 	}
 
-	float skyboxVertices[] = {
-		// positions          
-		-1.0f,  1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		-1.0f,  1.0f, -1.0f,
-		1.0f,  1.0f, -1.0f,
-		1.0f,  1.0f,  1.0f,
-		1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		1.0f, -1.0f, -1.0f,
-		1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		1.0f, -1.0f,  1.0f
-	};
-
-	// skybox VAO
-	GLuint skyboxVAO, skyboxVBO;
-	glGenVertexArrays(1, &skyboxVAO);
-	glGenBuffers(1, &skyboxVBO);
-	glBindVertexArray(skyboxVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	//
-
 	// post effect
-	int postEffectVertexNum = 6, postEffectFloatNum = 5;
-	float sss = 1.0f;
+	/*int postEffectVertexNum = 6, postEffectFloatNum = 5;
+	float postEffectScale = 1.0f;
 	GLfloat postEffectVertices[] =
 	{
-		-sss, sss, 0.0f, 1.0f,
-		-sss, -sss, 0.0f, 0.0f,
-		sss, -sss, 1.0f, 0.0f,
+		-postEffectScale, postEffectScale, 0.0f, 1.0f,
+		-postEffectScale, -postEffectScale, 0.0f, 0.0f,
+		postEffectScale, -postEffectScale, 1.0f, 0.0f,
 
-		-sss, sss, 0.0f, 1.0f,
-		sss, -sss, 1.0f, 0.0f,
-		sss, sss, 1.0f, 1.0f
+		-postEffectScale, postEffectScale, 0.0f, 1.0f,
+		postEffectScale, -postEffectScale, 1.0f, 0.0f,
+		postEffectScale, postEffectScale, 1.0f, 1.0f
 	};
 
 	GLuint postEffectVAO;
@@ -365,7 +308,7 @@ int main(int argc, char **argv)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));*/
 	//
 
 	//glUniform1i(screenTexID, 0);
@@ -373,13 +316,11 @@ int main(int argc, char **argv)
 	double mousePosX = 0.0, mousePosY = 0.0, lastMousePosX = 0.0, lastMousePosY = 0.0;
 	float cameraDeltaMove = 0.3f;
 
-	for (int i = 0; i < objNum; i++)
-		sceneObjects[i]->Awake();
 	// SRT의 순서대로 곱이 동작한다.
 	do
 	{
 		// TODO 매 프레임마다 position 과 normal을 보내줘야 할듯
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glEnable(GL_DEPTH_TEST);
 
 		glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
@@ -421,7 +362,6 @@ int main(int argc, char **argv)
 			ShaderProgram shaderProgram = sceneObjects[i]->GetShaderProgram();
 			glUseProgram(shaderProgram.GetShaderProgramID());
 			
-
 			// TODO uniform들을 따로 모아두는 것이 좋을 거 같다
 			glm::mat4 mvp = projection * view * sceneObjects[i]->GetModelMatrix();
 			
@@ -447,6 +387,16 @@ int main(int argc, char **argv)
 				glUniform1i(materialSpecualrID, 1);
 				glUniform1f(materialShininessID, 32.0);
 			}
+			else if (i == boxID)
+			{
+				/*glDepthFunc(GL_LEQUAL);
+				glUniform1f(skyboxID, 0);
+				glUniformMatrix4fv(skyboxViewID, 1, GL_FALSE, &view[0][0]);
+				glUniformMatrix4fv(skyboxProjectionID, 1, GL_FALSE, &projection[0][0]);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapID);
+				glDepthFunc(GL_LESS);*/
+			}
 			else
 			{
 				glUniformMatrix4fv(matrixID, 1, GL_FALSE, &mvp[0][0]);
@@ -461,7 +411,7 @@ int main(int argc, char **argv)
 					glEnableVertexAttribArray(j);
 			}
 
-			glDrawArrays(GL_TRIANGLES, 0, meshes[i].GetVertexNum() * 3);
+			glDrawArrays(GL_TRIANGLES, 0, sceneObjects[i]->GetMesh().GetVertexNum() * 3);
 
 			// 4는 layout 총 개수
 			for (int j = 0; j < 4; j++)
@@ -471,21 +421,11 @@ int main(int argc, char **argv)
 			}
 		}
 
-		// skybox load
-		/*glDepthFunc(GL_LEQUAL);
-		glUseProgram(skyBoxShader.GetShaderProgramID());
-		glUniform1f(skyboxID, 0);
-		glUniformMatrix4fv(skyboxViewID, 1, GL_FALSE, &view[0][0]);
-		glUniformMatrix4fv(skyboxProjectionID, 1, GL_FALSE, &projection[0][0]);
-		glBindVertexArray(skyboxVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapID);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-		glDepthFunc(GL_LESS);*/
+		// DEBUG skybox load
 		//
 
 		// post effect
+		/*
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glDisable(GL_DEPTH_TEST);
 
@@ -496,7 +436,7 @@ int main(int argc, char **argv)
 		glBindVertexArray(postEffectVAO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, colorTex);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 6);*/
 		//
 
 		glfwSwapBuffers(window);

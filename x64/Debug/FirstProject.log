@@ -1,4 +1,4 @@
-﻿  main.cpp
+﻿  Mesh.cpp
 c:\users\render4\downloads\opencv\build\include\opencv2\core\mat.hpp(2586): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\downloads\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\downloads\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
@@ -8,9 +8,5 @@ c:\users\render4\downloads\opencv\build\include\opencv2\imgproc.hpp : warning C4
 c:\users\render4\downloads\opencv\build\include\opencv2\imgproc.hpp(592): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\downloads\opencv\build\include\opencv2\stitching\detail\motion_estimators.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\downloads\opencv\build\include\opencv2\video\tracking.hpp(532): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\shaderloader.h(30): warning C4267: 'return': conversion from 'size_t' to 'const int', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\inputmanager.h(15): warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\sceneobject.h(19): warning C4172: returning address of local variable or temporary
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\shaderloader.h(31): warning C4172: returning address of local variable or temporary
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Debug\FirstProject.exe
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Debug\FirstProject.pdb (Partial PDB)

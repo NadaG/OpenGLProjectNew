@@ -31,6 +31,5 @@ public:
 	const bool& IsLayoutExist(LayoutType type) { return GetLayoutSize(type) != 0; }
 	const int& GetLayoutSize(LayoutType type);
 	const int& GetFloatNum() { return floatNum; }
-	void SetFloatNum(const int& value) { this->floatNum = value; }
-	const int& CalcGetFloatNum();
+	void CalcFloatNum();
 };

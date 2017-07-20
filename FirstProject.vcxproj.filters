@@ -48,6 +48,9 @@
     <ClCompile Include="SphereObject.cpp">
       <Filter>SceneObject</Filter>
     </ClCompile>
+    <ClCompile Include="CubeObject.cpp">
+      <Filter>SceneObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -117,6 +120,9 @@
       <Filter>SceneObject</Filter>
     </ClInclude>
     <ClInclude Include="SphereObject.h">
+      <Filter>SceneObject</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeObject.h">
       <Filter>SceneObject</Filter>
     </ClInclude>
   </ItemGroup>

@@ -15,7 +15,7 @@ public:
 	virtual ~SceneObject(){}
 
 	void SetMesh(const Mesh& mesh) { this->mesh = mesh; }
-	const Mesh& GetMesh() { return this->mesh; }
+	Mesh& GetMesh() { return this->mesh; }
 	const GLuint& GetShaderProgramID() { return this->shaderProgram.GetShaderProgramID(); }
 	ShaderProgram GetShaderProgram() { return this->shaderProgram; }
 	const glm::mat4& GetModelMatrix() { return this->modelMatrix; }

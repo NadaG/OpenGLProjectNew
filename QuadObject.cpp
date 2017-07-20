@@ -7,6 +7,7 @@ QuadObject::QuadObject(ShaderProgram shaderProgram)
 
 void QuadObject::Awake()
 {
+	mesh.LoadMesh(QUAD);
 }
 
 void QuadObject::Start()
