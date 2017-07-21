@@ -8,7 +8,7 @@ public:
 	Texture(){}
 	Texture(string file, int TextureID){}
 
-	const int& GenerateShadowTexture(int TextureIndex);
+	const int& GenerateShadowTexture();
 	const int& GenerateTexture(string file, int TextureIndex);
 
 private:

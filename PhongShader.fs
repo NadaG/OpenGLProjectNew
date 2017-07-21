@@ -7,6 +7,7 @@ out vec3 color;
 in vec3 outPos;
 in vec3 outColor;
 in vec3 outNormal;
+in vec2 outTexCoord;
 
 void main()
 {

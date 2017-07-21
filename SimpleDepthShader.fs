@@ -2,12 +2,7 @@
 
 out vec3 color;
 
-in vec2 TexCoord;
-
-uniform sampler2D depthMap;
-
 void main()
 {
-	float depthValue = texture(depthMap, TexCoord).r;
-	color = vec3(depthValue);
+	color = vec3(1.0,0.0,0.0);
 }

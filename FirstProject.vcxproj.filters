@@ -69,6 +69,9 @@
     <ClCompile Include="Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -106,6 +109,18 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="SimpleDepthShader.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DebugQuad.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DebugQuad.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shadow.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shadow.fs">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
@@ -159,6 +174,9 @@
       <Filter>Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

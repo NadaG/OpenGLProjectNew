@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraScript.cpp" />
+    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="FrameBufferObject.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -150,6 +151,8 @@
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="DebugQuad.fs" />
+    <None Include="DebugQuad.vs" />
     <None Include="FrameBufferObject.fs" />
     <None Include="FrameBufferObject.vs" />
     <None Include="LightShader.fs" />
@@ -157,6 +160,8 @@
     <None Include="packages.config" />
     <None Include="PhongShader.fs" />
     <None Include="PhongShader.vs" />
+    <None Include="Shadow.fs" />
+    <None Include="Shadow.vs" />
     <None Include="SimpleDepthShader.fs" />
     <None Include="SimpleDepthShader.vs" />
     <None Include="SkyBoxShader.fs" />
@@ -167,6 +172,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraScript.h" />
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="DefaultHeader.h" />
     <ClInclude Include="Face.h" />
     <ClInclude Include="FrameBufferObject.h" />

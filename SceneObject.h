@@ -29,13 +29,13 @@ public:
 
 	void AttachScript(SceneScript* sceneScript);
 
+	void SetPosition(const glm::vec3 position) { positionVector = position; }
+	void SetRotate(const glm::mat4 mat) { rotationMatrix = mat; }
+	void SetScale(const glm::vec3 scale) { scaleVector= scale; }
+
 	glm::vec3 GetPosition() { return positionVector; }
 	glm::vec3 GetScale() { return scaleVector; }
 	glm::mat4 GetRotate() { return rotationMatrix; }
-
-	void SetUniformMatrix4f(string name, glm::mat4 mat);
-	void SetUniformVector3f(string name, glm::vec3 vec);
-	void SetUniformVector3f(string name, float x, float y, float z);
 
 	void ScriptsAwake();
 	void ScriptsStart();

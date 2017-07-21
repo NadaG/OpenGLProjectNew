@@ -14,9 +14,6 @@ private:
 	int floatNum;
 	std::vector<std::pair<LayoutType, int> > layouts;
 
-protected:
-	void SetMatrix(string name, glm::mat4 mat);
-
 public:
 
 	ShaderProgram();
@@ -28,10 +25,11 @@ public:
 	void LoadShaders(const char * vertex_file_path, const char * fragment_file_path);
 	GLuint LoadShader(const char* shaderFilePath, int shaderType);
 
-	void AddLayout(LayoutType type, int size);
-	const int& GetLayoutNum() { return layouts.size(); }
-	const bool& IsLayoutExist(LayoutType type) { return GetLayoutSize(type) != 0; }
-	const int& GetLayoutSize(LayoutType type);
-	const int& GetFloatNum() { return floatNum; }
-	void CalcFloatNum();
+	void Use();
+
+	void SetUnifrom1f(string name, int value);
+	void SetUniform1i(string name, int value);
+	void SetUniformMatrix4f(string name, glm::mat4 mat);
+	void SetUniformVector3f(string name, glm::vec3 vec);
+	void SetUniformVector3f(string name, float x, float y, float z);
 };

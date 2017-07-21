@@ -89,33 +89,32 @@ GLuint ShaderProgram::LoadShader(const char* shaderFilePath, int shaderType)
 	return shaderID;
 }
 
-void ShaderProgram::AddLayout(LayoutType type, int size)
+void ShaderProgram::Use()
 {
-	floatNum += size;
-	layouts.push_back(std::make_pair(type, size));
+	glUseProgram(shaderProgram);
 }
 
-const int& ShaderProgram::GetLayoutSize(LayoutType type)
+void ShaderProgram::SetUnifrom1f(string name, int value)
 {
-	for (int i = 0; i < layouts.size(); i++)
-	{
-		if (type == layouts[i].first)
-			return layouts[i].second;
-	}
-	return 0;
+	glUniform1f(glGetUniformLocation(shaderProgram, name.c_str()), value);
 }
 
-void ShaderProgram::CalcFloatNum()
+void ShaderProgram::SetUniform1i(string name, int value)
 {
-	int ret = 0;
-	if (IsLayoutExist(LAYOUT_POSITION))
-		ret += GetLayoutSize(LAYOUT_POSITION);
-	if (IsLayoutExist(LAYOUT_COLOR))
-		ret += GetLayoutSize(LAYOUT_COLOR);
-	if (IsLayoutExist(LAYOUT_NORMAL))
-		ret += GetLayoutSize(LAYOUT_NORMAL);
-	if (IsLayoutExist(LAYOUT_UV))
-		ret += GetLayoutSize(LAYOUT_UV);
-	
-	floatNum = ret;
+	glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), value);
+}
+
+void ShaderProgram::SetUniformMatrix4f(string name, glm::mat4 mat)
+{
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
+void ShaderProgram::SetUniformVector3f(string name, glm::vec3 vec)
+{
+	glUniform3f(glGetUniformLocation(shaderProgram, name.c_str()), vec.x, vec.y, vec.z);
+}
+
+void ShaderProgram::SetUniformVector3f(string name, float x, float y, float z)
+{
+	glUniform3f(glGetUniformLocation(shaderProgram, name.c_str()), x, y, z);
 }
