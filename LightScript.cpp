@@ -2,6 +2,7 @@
 
 void LightScript::Awake()
 {
+	sceneObject->Translate(glm::vec3(0.0, 0.0f, 0.0f));
 }
 
 void LightScript::Start()

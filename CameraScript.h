@@ -10,4 +10,5 @@ public:
 	void Update();
 
 private:
+	float moveScale = 0.1f;
 };

@@ -10,8 +10,8 @@ using namespace std;
 const int shadowWidth = 1024;
 const int shadowHeight = 1024;
 
-const int width = 1024;
-const int height = 768;
+const int width = 1280;
+const int height = 720;
 
 int objNum;
 
@@ -20,7 +20,7 @@ glm::mat4 lightView;
 glm::mat4 lightSpaceMatrix;
 glm::mat4 projection;
 
-float near_plane = 1.0f;
+float near_plane = 1.f;
 float far_plane = 7.5f;
 
 void Render(Camera* camera, Light* light, SceneObject** sceneObjects, ShaderProgram& shader, ShaderProgram& lightShader);
@@ -118,21 +118,17 @@ int main(int argc, char **argv)
 	// depth map을 생성하고 frame buffer에 붙인다.
 	GLuint depthMapFBO;
 	glGenFramebuffers(1, &depthMapFBO);
-	Texture shadowMapTexture;
-	GLuint depthMap = shadowMapTexture.GenerateShadowTexture();
+	Texture depthMapTexture;
+	GLuint depthMap = depthMapTexture.GenerateShadowTexture();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
-
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	shadowShader.Use();
 	shadowShader.SetUniform1i("shadowMap", 0);
-
-	/*depthShader.Use();
-	depthShader.SetUniform1i("depthMap", 0);*/
 
 	// SRT의 순서대로 곱이 동작한다. 곱을 할때는 반대로임
 	do
@@ -142,15 +138,13 @@ int main(int argc, char **argv)
 
 		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 		lightView = glm::lookAt(glm::vec3(light->GetPosition()),
-			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 		lightSpaceMatrix = lightProjection * lightView;
 
-		depthShader.Use();
-		depthShader.SetUniformMatrix4f("lightSpaceMatrix", lightSpaceMatrix);
-
+		//glCullFace(GL_FRONT);
 		// depth map 그리기 시작
-		// depth map에 각 픽셀마다 값은 0(near),1(far)로 거리가 정해진다
+		// depth map에 각 픽셀마다 값은 0(near, 검은색),1(far, 흰색)로 거리가 정해진다
 		glViewport(0, 0, shadowWidth, shadowHeight);
 		// fbo를 바인드 하고(fbo에는 depthMap texture가 설정되어 있음, color texture는 설정되어 있지 않음)
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -158,28 +152,26 @@ int main(int argc, char **argv)
 		glClear(GL_DEPTH_BUFFER_BIT);
 		// object들을 depth buffer에 draw vertex shader에 그냥 position을 출력하니까 depthMap이 생성됨
 		Render(camera, light, sceneObjects, depthShader, lightShader);
+		//glCullFace(GL_BACK);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		// debug quad를 그리는 부분
-		//glViewport(0, 0, width, height);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//
-		//quadShader.Use();
-		//quadShader.SetUnifrom1f("near_plane", near_plane);
-		//quadShader.SetUnifrom1f("far_plane", far_plane);
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, depthMap);
-		//renderQuad();
+		/*glViewport(0, 0, width, height);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		quadShader.Use();
+		quadShader.SetUnifrom1f("near_plane", near_plane);
+		quadShader.SetUnifrom1f("far_plane", far_plane);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		renderQuad();*/
 
+		// render pass가 2개임
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shadowShader.Use();
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		Render(camera, light, sceneObjects, shadowShader, lightShader);
-
-		/*glViewport(0, 0, width, height);
-		Render(camera, light, sceneObjects, phongShader);*/
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -205,7 +197,7 @@ void Render(Camera* camera, Light* light, SceneObject** sceneObjects, ShaderProg
 	glm::mat4 view = glm::lookAt
 	(
 		camera->GetPosition(),
-		glm::vec3(0, 0, 0),
+		glm::vec3(0, 0, -10.0) + camera->GetPosition(),
 		glm::vec3(0, 1.0f, 0.0f)
 	);
 
@@ -218,24 +210,24 @@ void Render(Camera* camera, Light* light, SceneObject** sceneObjects, ShaderProg
 
 		// TODO uniform들을 따로 모아두는 것이 좋을 거 같다
 		glm::mat4 mvp = projection * view * sceneObjects[i]->GetModelMatrix();
+		lightSpaceMatrix = lightProjection * lightView;
 
 		// bind buffer를 굳이 하지 않더라도 vertex array object만 bind하면 알아서 됨
 		glBindVertexArray(sceneObjects[i]->GetVAO());
 		
 		shader.SetUniformMatrix4f("MVP", mvp);
-		shader.SetUniformVector3f("lightPos", glm::normalize(light->GetPosition()));
+		shader.SetUniformVector3f("lightPos", light->GetPosition());
 		shader.SetUniformVector3f("eyePos", camera->GetPosition());
 		shader.SetUniformMatrix4f("lightSpaceMatrix", lightSpaceMatrix);
 		shader.SetUniformMatrix4f("model", sceneObjects[i]->GetModelMatrix());
 		shader.SetUniformMatrix4f("view", view);
 		shader.SetUniformMatrix4f("projection", projection);
+		shader.SetUniformMatrix4f("viewProjectionMatrix", projection * view);
 
 		// 4는 layout 총 개수
 		// position, color, normal, uv
 		for (int j = 0; j < 4; j++)
-		{
 			glEnableVertexAttribArray(j);
-		}
 
 		// glDrawElements를 사용하려면 VAO가 필요함, 없을 경우 indices를 제대로 넣어줘야  하고
 		// VAO가 있을 경우 indices 자리에 NULL을 넣어주더라도 알아서 bind 된 VAO에 따라 그려줌
@@ -244,9 +236,7 @@ void Render(Camera* camera, Light* light, SceneObject** sceneObjects, ShaderProg
 
 		// 4는 layout 총 개수
 		for (int j = 0; j < 4; j++)
-		{
 			glDisableVertexAttribArray(j);
-		}
 	}
 
 	glBindVertexArray(light->GetVAO());
