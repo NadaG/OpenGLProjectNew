@@ -18,9 +18,13 @@ uniform mat4 lightSpaceMatrix;
 
 void main()
 {
+	// world position
 	outPos = vec3(model * vec4(vertexPos, 1.0));
 	outNormal = transpose(inverse(mat3(model))) * vertexNormal;
 	outTexCoord = vertexTexCoord;
+	// light space position
 	outFragPosLightSpace = lightSpaceMatrix * vec4(outPos, 1.0);
+	outFragPosLightSpace /= outFragPosLightSpace.w;
+	// camera space position
 	gl_Position = projection * view * model * vec4(vertexPos, 1.0);
 }

@@ -10,14 +10,7 @@ SceneObject::SceneObject()
 	this->rotationMatrix = glm::mat4(1.0);
 }
 
-SceneObject::SceneObject(const ShaderProgram& shaderProgram)
-	: SceneObject()
-{
-	id = objectNum++;
-	this->shaderProgram = shaderProgram;
-}
-
-SceneObject::SceneObject(const ShaderProgram& shaderProgram, const Mesh& mesh)
+SceneObject::SceneObject(const Mesh& mesh)
 	: SceneObject()
 {
 	id = objectNum++;
@@ -28,7 +21,7 @@ SceneObject::SceneObject(const ShaderProgram& shaderProgram, const Mesh& mesh)
 void SceneObject::GenerateVBO(const Mesh& mesh)
 {
 	this->mesh = mesh;
-	int floatNum = 11;
+	int floatNum = 14;
 	GLfloat* vertexBufferDatas = new GLfloat[this->mesh.GetVertexNum() * floatNum];
 	
 	for (int i = 0; i < this->mesh.GetVertexNum(); i++)
@@ -44,6 +37,9 @@ void SceneObject::GenerateVBO(const Mesh& mesh)
 		vertexBufferDatas[i * floatNum + 8] = this->mesh.GetVertice(i).normal.z;
 		vertexBufferDatas[i * floatNum + 9] = this->mesh.GetVertice(i).uv.x;
 		vertexBufferDatas[i * floatNum + 10] = this->mesh.GetVertice(i).uv.y;
+		vertexBufferDatas[i * floatNum + 11] = this->mesh.GetVertice(i).tangent.x;
+		vertexBufferDatas[i * floatNum + 12] = this->mesh.GetVertice(i).tangent.y;
+		vertexBufferDatas[i * floatNum + 13] = this->mesh.GetVertice(i).tangent.z;
 	}
 
 	// VAO 생성
@@ -55,12 +51,13 @@ void SceneObject::GenerateVBO(const Mesh& mesh)
 	// 각각의 vertex array를 사용함
 	glBindVertexArray(sceneObjectVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->mesh.GetVertexNum() * 11, vertexBufferDatas, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->mesh.GetVertexNum() * 14, vertexBufferDatas, GL_STATIC_DRAW);
 
 	int offset = 0;
 	int layoutSize;
-	for (int j = 0; j < 4; j++)
+	for (int j = 0; j < 5; j++)
 	{
+		// uv
 		if (j == 3)
 			layoutSize = 2;
 		else
@@ -72,7 +69,7 @@ void SceneObject::GenerateVBO(const Mesh& mesh)
 			layoutSize,
 			GL_FLOAT,
 			GL_FALSE,
-			sizeof(GLfloat) * 11, // stride
+			sizeof(GLfloat) * 14, // stride
 			(void*)(sizeof(GLfloat) * offset) // 하나의 vertex 정보 set에서 해당 layout이 얼마나 떨어져 있는지
 		);
 		offset += layoutSize;
@@ -99,7 +96,9 @@ void SceneObject::Rotate(const glm::vec3& vec, float angle)
 
 void SceneObject::Scale(const glm::vec3& vec)
 {
-	this->scaleVector *= vec;
+	this->scaleVector.x *= vec.x;
+	this->scaleVector.y *= vec.y;
+	this->scaleVector.z *= vec.z;
 }
 
 void SceneObject::AttachScript(SceneScript* sceneScript)

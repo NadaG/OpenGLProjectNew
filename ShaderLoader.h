@@ -27,7 +27,7 @@ public:
 
 	void Use();
 
-	void SetUnifrom1f(string name, int value);
+	void SetUniform1f(string name, int value);
 	void SetUniform1i(string name, int value);
 	void SetUniformMatrix4f(string name, glm::mat4 mat);
 	void SetUniformVector3f(string name, glm::vec3 vec);

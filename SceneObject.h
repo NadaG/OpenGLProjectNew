@@ -11,8 +11,7 @@ class SceneObject
 {
 public:
 	SceneObject();
-	SceneObject(const ShaderProgram& shaderProgram);
-	SceneObject(const ShaderProgram& shaderProgram, const Mesh& mesh);
+	SceneObject(const Mesh& mesh);
 	virtual ~SceneObject(){}
 
 	void GenerateVBO(const Mesh& mesh);

@@ -2,7 +2,6 @@
 
 void CameraScript::Awake()
 {
-	sceneObject->Translate(glm::vec3(0.0f, 0.0f, 10.0f));
 }
 
 void CameraScript::Start()
