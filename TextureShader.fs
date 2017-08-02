@@ -39,7 +39,13 @@ void main()
 	vec3 eyeDir = normalize(tangentEyePos - tangentOutPos);
 	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 	float spec = pow(max(dot(eyeDir, reflectDir), 0.0), material.shininess);
-	//vec3 specular = lightColor * spec * vec3(texture(material.specular, outTexCoord));
+	// specular map 쓰지 않음
+	// vec3 specular = lightColor * spec * vec3(texture(material.specular, outTexCoord));
+	
+	// 대충 때웠는데 다른 방식이 있지 않을까
+	// if(dot(lightDir, eyeDir) < -0.7)
+	//	 spec=0.0;
+
 	vec3 specular = lightColor * spec;
 
 	color = ambient + diffuse + specular;

@@ -22,6 +22,9 @@ void Mesh::LoadMesh(const MeshType& meshType)
 		break;
 	case SPHERE:
 		LoadMesh("sphereObj.obj");
+		
+		
+		
 		drawMode = GL_TRIANGLES;
 		break;
 

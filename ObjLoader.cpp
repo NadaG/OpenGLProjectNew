@@ -423,6 +423,25 @@ const int& ObjLoader::GenerateVertices(Vertex* vertices)
 		vertex.normal = normals[(int)faces[i].normalIndex.z];
 		vertices[i * 3 + 2] = vertex;
 
+		glm::vec3 edge1, edge2;
+		glm::vec2 deltaUV1, deltaUV2;
+		edge1 = vertices[i * 3 + 1].position - vertices[i * 3].position;
+		edge2 = vertices[i * 3 + 2].position - vertices[i * 3].position;
+		deltaUV1 = vertices[i * 3 + 1].uv - vertices[i * 3].uv;
+		deltaUV2 = vertices[i * 3 + 2].uv - vertices[i * 3].uv;
+
+		float f = 1 / (deltaUV1.x*deltaUV2.y - deltaUV1.y*deltaUV2.x);
+
+		glm::vec3 tangent;
+		tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+		tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+		tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+		tangent = glm::normalize(tangent);
+
+		vertices[i * 3].tangent = tangent;
+		vertices[i * 3 + 1].tangent = tangent;
+		vertices[i * 3 + 2].tangent = tangent;
+
 		vertexNum += 3;
 	}
 
