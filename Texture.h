@@ -9,7 +9,7 @@ public:
 
 	const int& GenerateShadowTexture();
 	const int& GenerateTexture(string file, int textureIndex);
-	const int& GenerateFloatingPointFramebufferTexture(int textureIndex);
+	const int& GenerateFloatingPointFramebufferTexture();
 	const int& GenerateDepthRenderBufferObject();
 
 private:

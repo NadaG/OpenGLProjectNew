@@ -39,15 +39,17 @@ const int& Texture::GenerateTexture(string file, int TextureIndex)
 }
 
 // frame buffer object는 color 정보를 가지는 texture와 depth, stencil 정보등을 가지는 render buffer object로 이루어진다
-const int& Texture::GenerateFloatingPointFramebufferTexture(int textureIndex)
+const int& Texture::GenerateFloatingPointFramebufferTexture()
 {
 	GLuint texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	// 3번째 인자가 GL_RGBA(0.0, 1.0)가 아니라 GL_RGBA(16비트 floating point)라는 것을 주의하자
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	return texture;
 }

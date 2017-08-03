@@ -49,6 +49,9 @@ void SceneObject::GenerateVBO(const Mesh& mesh)
 	glGenBuffers(1, &vertexBuffer);
 
 	// 각각의 vertex array를 사용함
+	// vertex array object는 밑에서 정의할 glEnableVertexAttribArray(i)의 상태를 갖게 되는 object이다
+	// 현재 바인드된 VAO에 따라 vertex의 조합 정보들이 정의되고 저장된다. 
+	// 그렇다고 실제로 vertex 정보가 저장된것은 아니다(단지 조합 정보)
 	glBindVertexArray(sceneObjectVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->mesh.GetVertexNum() * 14, vertexBufferDatas, GL_STATIC_DRAW);

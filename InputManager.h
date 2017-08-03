@@ -13,7 +13,9 @@ public:
 	void SetWindow(GLFWwindow* window);
 
 	bool IsKey(int key) { return glfwGetKey(window, key); }
-	
+	bool IsKeyDown(int key);
+	bool IsKeyUp(int key);
+
 private:
 	InputManager() {};
 	InputManager(const InputManager& other);

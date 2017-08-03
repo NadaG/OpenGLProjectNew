@@ -157,6 +157,12 @@
     <None Include="DebugQuad.vs" />
     <None Include="FrameBufferObject.fs" />
     <None Include="FrameBufferObject.vs" />
+    <None Include="GaussianBlur.fs" />
+    <None Include="GaussianBlur.vs" />
+    <None Include="HDR.fs" />
+    <None Include="HDR.vs" />
+    <None Include="HDRlighting.fs" />
+    <None Include="HDRlighting.vs" />
     <None Include="LightShader.fs" />
     <None Include="LightShader.vs" />
     <None Include="packages.config" />

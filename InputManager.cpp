@@ -19,6 +19,16 @@ void InputManager::SetWindow(GLFWwindow* window)
 	glfwSetMouseButtonCallback(this->window, mouseButtonCallback);
 }
 
+bool InputManager::IsKeyDown(int key)
+{
+	return false;
+}
+
+bool InputManager::IsKeyUp(int key)
+{
+	return false;
+}
+
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT)

@@ -2,9 +2,11 @@
 
 in vec3 outColor;
 
+uniform vec3 lightBallColor;
+
 out vec3 color;
 
 void main()
 {
-	color = vec3(1.0,0.8,0.0);
+	color = lightBallColor;
 }

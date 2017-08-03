@@ -94,7 +94,7 @@ void ShaderProgram::Use()
 	glUseProgram(shaderProgram);
 }
 
-void ShaderProgram::SetUniform1f(string name, int value)
+void ShaderProgram::SetUniform1f(string name, float value)
 {
 	glUniform1f(glGetUniformLocation(shaderProgram, name.c_str()), value);
 }
