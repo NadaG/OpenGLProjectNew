@@ -1,10 +1,9 @@
-// HDR high dynamic range rendering
-// LDR의 경우 밝기를 0.0에서 1.0밖에 표현하지 못한다
-// 하지만 HDR을 사용하면 더 다양한 밝기를 표현할 수 있다
-// 이는 bloom 효과나 사람의 눈이 암적응하는 효과를 표현할 수 있다
-// 코드로 HDR을 구현해서 HDR을 표현하지 못하는 모니터에 HDR이 적용된 것처럼 할 수 있다
-// HDR을 LDR로 바꾸는 것을 tonemapping이라고 한다
-// shadow mapping with small bug
+// deffered shading
+// deffered shading이란 2개의 pass를 거쳐서 화면을 그리는 것을 말한다
+// 먼저 geometry pass에서 object들의 position, normal, specular등의 정보를 뽑아서 텍스쳐에 넣고
+// 정보들을 모아놓은 texture를 g-buffer라고 한다. MTR(multiple render target)을 이용해서 만든다
+// 이것은 하나의 frame buffer object에서 여러 개의 color texture를 붙여서 구현한다
+// lighting pass에서 그림을 그린다.
 #include "Camera.h"
 #include "Light.h"
 #include "Texture.h"

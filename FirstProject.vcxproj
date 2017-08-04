@@ -159,8 +159,8 @@
     <None Include="FrameBufferObject.vs" />
     <None Include="GaussianBlur.fs" />
     <None Include="GaussianBlur.vs" />
-    <None Include="HDR.fs" />
-    <None Include="HDR.vs" />
+    <None Include="Bloom.fs" />
+    <None Include="Bloom.vs" />
     <None Include="HDRlighting.fs" />
     <None Include="HDRlighting.vs" />
     <None Include="LightShader.fs" />

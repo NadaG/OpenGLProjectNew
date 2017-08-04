@@ -135,16 +135,16 @@
     <None Include="HDRlighting.fs">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="HDR.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="HDR.fs">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="GaussianBlur.vs">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="GaussianBlur.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Bloom.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Bloom.fs">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
