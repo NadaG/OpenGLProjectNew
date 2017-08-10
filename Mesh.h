@@ -13,7 +13,8 @@ enum MeshType
 	TORUS = 0,
 	SPHERE = 1,
 	QUAD = 2,
-	BOX = 3
+	BOX = 3,
+	EARTH = 4
 };
 
 class Mesh

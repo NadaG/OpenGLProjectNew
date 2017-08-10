@@ -21,13 +21,9 @@ void Mesh::LoadMesh(const MeshType& meshType)
 		drawMode = GL_TRIANGLES;
 		break;
 	case SPHERE:
-		LoadMesh("sphereObj.obj");
-		
-		
-		
+		LoadMesh("sphereObj.obj");	
 		drawMode = GL_TRIANGLES;
 		break;
-
 	case QUAD:
 		vertices[0].position = glm::vec3(-scale, scale, 0.0f);
 		vertices[0].normal = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -123,6 +119,9 @@ void Mesh::LoadMesh(const MeshType& meshType)
 			vertices[i].uv.y = boxVertices[i * 8 + 7];
 		}
 
+		// 삼각형의 위치 정보와 uv 정보를 활용해서 edge에 평행하는 tangent vector를 뽑아낼 수 있다.
+		// bitangent vector 는 normal과 tangent vector를 cross 연산을 함으로써 구하고
+		// 구해내 TBN을 행렬로 만들어서 world space의 좌표를 tangent space의 좌표로 바꿀 수 있다.
 		for (int i = 0; i < 36; i += 6)
 		{
 			glm::vec3 tangent1, tangent2;
@@ -164,6 +163,10 @@ void Mesh::LoadMesh(const MeshType& meshType)
 		drawMode = GL_TRIANGLES;
 		break;
 	}
+	case EARTH:
+		LoadMesh("Earth/Earth.obj");
+		drawMode = GL_TRIANGLES;
+		break;
 	default:
 		break;
 	}

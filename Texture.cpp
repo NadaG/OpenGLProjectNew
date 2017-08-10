@@ -8,7 +8,7 @@ void GenerateDatas(GLubyte* data, cv::Mat image)
 		{
 			for (int k = 0; k < 3; k++)
 			{
-				data[(i * image.cols + j) * 3 + k] = image.at<cv::Vec3b>(j, i)[2 - k];
+				data[(i * image.cols + j) * 3 + k] = image.at<cv::Vec3b>(image.rows - i - 1, j)[2 - k];
 			}
 		}
 	}

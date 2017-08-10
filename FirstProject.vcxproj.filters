@@ -22,6 +22,12 @@
     <Filter Include="Scripts">
       <UniqueIdentifier>{2a2d6b51-9bdd-4e98-8a1c-25206f732c29}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SPH">
+      <UniqueIdentifier>{240b33ff-ad48-41d8-aeae-0761b8c16386}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SPHShader">
+      <UniqueIdentifier>{57bc3f9d-8f75-4ff1-8b79-3c07cd66f10c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -77,6 +83,12 @@
     </ClCompile>
     <ClCompile Include="main4.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sphmain.cpp">
+      <Filter>SPH</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -146,6 +158,18 @@
     </None>
     <None Include="Bloom.fs">
       <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DefferedShading.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="DefferedShading.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SPH.vs">
+      <Filter>SPHShader</Filter>
+    </None>
+    <None Include="SPH.fs">
+      <Filter>SPHShader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

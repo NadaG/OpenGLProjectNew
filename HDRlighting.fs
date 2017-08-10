@@ -14,6 +14,7 @@ struct Light {
     vec3 color;
 };
 
+uniform vec3 lightPos;
 uniform Light lights[16];
 uniform sampler2D diffuseTexture;
 
@@ -29,13 +30,13 @@ void main()
     for(int i = 0; i < 16; i++)
     {
         // diffuse
-        vec3 lightDir = normalize(lights[i].position - fs_in.pos);
+        vec3 lightDir = normalize(lightPos - fs_in.pos);
         float diff = max(dot(lightDir, normal), 0.0);
 		// diff = 1.0;
         vec3 diffuse = lights[i].color * diff * texColor;      
         vec3 result = diffuse;        
         // attenuation (use quadratic as we have gamma correction)
-        float distance = length(fs_in.pos - lights[i].position);
+        float distance = length(fs_in.pos - lightPos);
         result *= 1.0 / (distance * distance);
         lighting += result;
                 
