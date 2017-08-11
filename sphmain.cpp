@@ -5,15 +5,76 @@
 #include "CameraScript.h"
 #include "Debug.h"
 
+//////// sph
+#include "Particle.h"
+
 using namespace std;
 
-const int width = 1280;
-const int height = 720;
+const int width = 800;
+const int height = 800;
 
 void Render(ShaderProgram& shader);
+void Update(Particle* particles, int row, int col);
+void UpdateParticlesPos(Particle* particles, GLfloat* particlesPoses, int row, int col);
 
 GLuint VAO;
-int pointNum = 100;
+int particleRow = 41;
+int particleCol = 21;
+
+float threshold = 0.1f;
+float restDensity = 0.3f;
+
+float lastTime;
+float deltaTime;
+
+enum KernelType
+{
+	POLY6, 
+	SPIKY_GRADIENT,
+	VISCOCITY_CURL
+};
+
+float PI = 3.1415926535897f;
+
+//float SmoothingKernel(float rDist, float h, KernelType kernelType)
+//{
+//	if (rDist >= 0 && rDist <= h)
+//	{
+//		switch (kernelType)
+//		{
+//		case POLY6:
+//			return 315.0f/(64.0f * PI * h*h*h*h*h*h*h*h*h)*(h*h - rDist*rDist)*(h*h - rDist*rDist)*(h*h - rDist*rDist);
+//		case SPIKY_GRADIENT:
+//			return -(45 * (h - rDist)*(h - rDist)) / (PI*h*h*h*h*h*h) + 45 * (h - rDist)*(h - rDist)*(-h + 2 * rDist) / (PI*h*h*h*h*h*h*h);
+//		case VISCOCITY_CURL:
+//			return 45 * (h - rDist) / (PI*h*h*h*h*h*h);
+//		}
+//	}
+//	else
+//		return 0;
+//}
+
+float Poly6SmoothingKernel(glm::vec2 r, float h)
+{
+	if (r.length() < 0 || r.length() > h)
+		return 0;
+	return 315.0f / (64.0f * PI * pow(h, 9)) * pow((h*h - r.length()*r.length()), 3);
+}
+
+glm::vec2 SpikySmoothingKernelGradient(glm::vec2 r, float h)
+{
+	if (r.length() < 0 || r.length() > h)
+		return glm::vec2();
+	// TODO length를 사용해서 미분을 한 후 r vector에 곱하는 것이 맞나?
+	return glm::vec2(-45 * (h - r.x)*(h - r.x) / (PI*pow(h, 6)), -45 * (h - r.y)*(h - r.y) / (PI*pow(h, 6)));
+}
+
+float ViscosityLapacian(glm::vec2 r, float h)
+{
+	if (r.length() < 0 || r.length() > h)
+		return 0;
+	return 45 * (h - r.length()) / (PI*pow(h, 6));
+}
 
 int main(int argc, char **argv)
 {
@@ -56,14 +117,27 @@ int main(int argc, char **argv)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	GLfloat* particlesPoses;
 	// (x1,y1), (x2,y2)...
-	particlesPoses = new GLfloat[pointNum * 2];
+	particlesPoses = new GLfloat[particleRow * particleCol * 2];
 
-	for (int i = 0; i < 10; i++)
+	Particle* particles;
+	particles = new Particle[particleRow * particleCol];
+	float dist = 0.01f;
+
+	for (int i = 0; i < particleRow; i++)
 	{
-		for (int j = 0; j < 10; j++)
+		for (int j = 0; j < particleCol; j++)
 		{
-			particlesPoses[(i * 10 + j) * 2] = j * 0.01f;
-			particlesPoses[(i * 10 + j) * 2 + 1] = i * 0.01f;
+			int x = j - particleCol / 2;
+			int y = i - particleRow / 2;
+			particles[i * particleCol + j].position.x = x * dist;
+			particles[i * particleCol + j].position.y = y * dist;
+			particles[i * particleCol + j].density = 1.0f;
+			particles[i * particleCol + j].mass = 0.01f;
+			particles[i * particleCol + j].viscosity = 0.01f;
+			particles[i * particleCol + j].acceleration = glm::vec2();
+			particles[i * particleCol + j].velocity = glm::vec2();
+			particles[i * particleCol + j].pressure = 0.01f;
+			particles[i * particleCol + j].gasconstant = 0.01f;
 		}
 	}
 
@@ -73,8 +147,13 @@ int main(int argc, char **argv)
 	glGenBuffers(1, &particleBuffer);
 
 	glBindVertexArray(VAO);
+
+	UpdateParticlesPos(particles, particlesPoses, particleRow, particleCol);
 	glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
-	glBufferData(GL_ARRAY_BUFFER, pointNum * sizeof(GLfloat) * 2, particlesPoses, GL_STATIC_DRAW);
+	
+	// drawArrays를 해서 단순히 vertex의 array를 주는 경우에는 GL_ARRAY_BUFFER를 쓰고
+	// drawElements를 하려고 indices를 주는 경우에는 GL_ELEMENT_ARRAY_BUFFER를 쓴다
+	glBufferData(GL_ARRAY_BUFFER, particleRow * particleCol * sizeof(GLfloat) * 2, particlesPoses, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -82,14 +161,24 @@ int main(int argc, char **argv)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+	lastTime = glfwGetTime();
+	deltaTime = 0.0f;
+
 	do
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+		Update(particles, particleRow, particleCol);
+		
+		UpdateParticlesPos(particles, particlesPoses, particleRow, particleCol);
+		glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
+		// target, offset, size, data
+		// 현재 target에 바인드 된 데이터의 일부를 정제한다, 위 경우는 glBindBuffer를 particleBuffer로 했음 
+		// offset 부터 시작해서 size까지
+		glBufferSubData(GL_ARRAY_BUFFER, 0, particleRow * particleCol * sizeof(GLfloat) * 2, particlesPoses);
+		
 		Render(sphShader);
 
-		glfwSwapBuffers(window);
 		glfwPollEvents();
+		glfwSwapBuffers(window);
 	}
 
 	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
@@ -107,5 +196,76 @@ void Render(ShaderProgram& shader)
 	shader.Use();
 
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_POINTS, 0, pointNum * 2);
+	glDrawArrays(GL_POINTS, 0, particleRow * particleCol);
+}
+
+glm::vec2 GRAVITY = glm::vec2(0.0, -0.01);
+
+void Update(Particle* particles, int row, int col)
+{
+	float currentTime = glfwGetTime();
+	deltaTime = currentTime - lastTime;
+	lastTime = currentTime;
+
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+		{
+			for (int ii = 0; ii < row; ii++)
+			{
+				for (int jj = 0; jj < col; jj++)
+				{
+					int a = i*col + j, b = ii*col + jj;
+					if (a == b)
+						continue;
+
+					particles[a].density += particles[b].mass*Poly6SmoothingKernel(
+						particles[a].position-particles[b].position, 
+						threshold);
+					particles[a].pressure = particles[a].gasconstant*(particles[a].density - restDensity);
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+		{
+			int a = i*col + j;
+			glm::vec2 gravityForce = particles[a].density * GRAVITY;
+			glm::vec2 pressureForce = glm::vec2();
+			glm::vec2 viscosityForce = glm::vec2();
+
+			for (int ii = 0; ii < row; ii++)
+			{
+				for (int jj = 0; jj < col; jj++)
+				{
+					int b = ii*col + jj;
+					if (a == b)
+						continue;
+
+					pressureForce -= particles[b].mass*
+						((particles[a].pressure + particles[b].pressure) /
+						(2 * particles[b].density))*SpikySmoothingKernelGradient(particles[i].position - particles[j].position, threshold);
+				}
+			}
+
+			particles[a].acceleration = (pressureForce + gravityForce + viscosityForce) / particles[a].density;
+			particles[a].velocity += particles[a].acceleration * deltaTime;
+			particles[a].position += particles[a].velocity * deltaTime;
+		}
+	}
+}
+
+void UpdateParticlesPos(Particle* particles, GLfloat* particlesPoses, int row, int col)
+{
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+		{
+			particlesPoses[(i * col + j) * 2] = particles[i * col + j].position.x;
+			particlesPoses[(i * col + j) * 2 + 1] = particles[i * col + j].position.y;
+		}
+	}
 }

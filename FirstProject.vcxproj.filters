@@ -90,6 +90,9 @@
     <ClCompile Include="sphmain.cpp">
       <Filter>SPH</Filter>
     </ClCompile>
+    <ClCompile Include="Particle.cpp">
+      <Filter>SPH</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -226,6 +229,9 @@
     </ClInclude>
     <ClInclude Include="Debug.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>SPH</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

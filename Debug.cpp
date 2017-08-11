@@ -39,3 +39,8 @@ void Debug::Log(const glm::vec3 vec)
 {
 	cout << "x: " << vec.x << " y: " << vec.y << " z: " << vec.z << endl;
 }
+
+void Debug::Log(const glm::vec2 vec)
+{
+	cout << "x: " << vec.x << " y: " << vec.y << endl;
+}
