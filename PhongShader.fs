@@ -1,6 +1,9 @@
 #version 330 core
 
-out vec3 color;
+layout(location = 0) out vec3 fragPos;
+layout(location = 1) out vec3 fragNormal;
+layout(location = 2) out vec3 fragDiffuse;
+
 in vec3 outPos;
 in vec3 outColor;
 in vec3 outNormal;
@@ -25,5 +28,7 @@ void main()
 
 	vec3 specular = pow(max(dot(-normalize(reflect(lightDirection, norm)), eyeDirection), 0.0), 64) * texColor;
 
-	color = ambient + diffuse + specular;
+	fragPos = outPos;
+	fragNormal = norm;
+	fragDiffuse = ambient + diffuse + specular;
 }

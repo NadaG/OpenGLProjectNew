@@ -7,7 +7,8 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gDiffuseMap;
 
-struct Light{
+struct Light
+{
 	vec3 position;
 	vec3 color;
 };
@@ -33,5 +34,6 @@ void main()
 		lighting += diffuse;
 	}
 
-	color = lighting;
+	color = Normal;
+	//color = vec3(1.0, 0.0, 0.0);
 }

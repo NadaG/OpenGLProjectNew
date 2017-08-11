@@ -1,4 +1,4 @@
-﻿  sphmain.cpp
+﻿  main5.cpp
 c:\users\render4\downloads\opencv\build\include\opencv2\core\mat.hpp(2586): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\downloads\opencv\build\include\opencv2\core\persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\downloads\opencv\build\include\opencv2\core\utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
@@ -9,10 +9,8 @@ c:\users\render4\downloads\opencv\build\include\opencv2\imgproc.hpp(592): warnin
 c:\users\render4\downloads\opencv\build\include\opencv2\stitching\detail\motion_estimators.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\downloads\opencv\build\include\opencv2\video\tracking.hpp(532): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\inputmanager.h(15): warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\sphmain.cpp(158): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\sphmain.cpp(200): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\main5.cpp(319): warning C4305: 'argument': truncation from 'double' to 'float'
   Generating Code...
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\sphmain.cpp(55): warning C4715: 'SmoothingKernel': not all control paths return a value
   Skipping... (no relevant changes detected)
   main3.cpp
   main2.cpp
