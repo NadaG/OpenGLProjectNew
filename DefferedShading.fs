@@ -11,6 +11,9 @@ struct Light
 {
 	vec3 position;
 	vec3 color;
+	float linear;
+	float quadratic;
+	float radius;
 };
 
 const int NR_LIGHTS = 32;
@@ -32,8 +35,9 @@ void main()
 		vec3 lightDir = normalize(lights[i].position - FragPos);
 		vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Albedo * lights[i].color;
 		lighting += diffuse;
+		// lighting += lights[i].position;
 	}
 
-	color = Normal;
+	color = lighting;
 	//color = vec3(1.0, 0.0, 0.0);
 }

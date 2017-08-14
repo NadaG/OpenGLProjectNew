@@ -11,32 +11,17 @@ uniform mat4 MVP;
 uniform mat4 model;
 
 out vec3 outPos;
-out vec3 outColor;
 out vec3 outNormal;
 out vec2 outTexCoord;
 
-out vec3 tangentLightPos;
-out vec3 tangentEyePos;
-
-uniform vec3 lightPos;
-uniform vec3 eyePos;
-
 void main()
 {
-	gl_Position = MVP * vec4(vertexPos, 1);
-
-	outColor = vertexColor;
-	outNormal = vertexNormal;
-	outPos = vec3(model * vec4(vertexPos, 1));
+	vec4 worldPos = model * vec4(vertexPos, 1.0);
+	outPos = worldPos.xyz;
 	outTexCoord = vertexTexCoord;
 
-	vec3 T = normalize(vec3(model * vec4(vertexTangent, 1.0)));
-	vec3 N = normalize(vec3(model * vec4(vertexNormal, 1.0)));
+	mat3 normalMatrix = transpose(inverse(mat3(model)));
+	outNormal = normalMatrix * vertexNormal;
 
-	vec3 B = normalize(cross(T, N));
-
-	mat3 TBN = transpose(mat3(T, B, N));
-
-	tangentLightPos = TBN * lightPos;
-	tangentEyePos = TBN * eyePos;
+	gl_Position = MVP * vec4(vertexPos, 1.0);
 }
