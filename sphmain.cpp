@@ -18,14 +18,23 @@ void Update(Particle* particles, int row, int col);
 void UpdateParticlesPos(Particle* particles, GLfloat* particlesPoses, int row, int col);
 
 GLuint VAO;
-int particleRow = 41;
-int particleCol = 21;
+int particleRow = 51;
+int particleCol = 31;
 
-float threshold = 0.01f;
-float restDensity = 0.3f;
+const float threshold = 1.2f;
+const float dist = 0.5f;
+const float restDensity = 5.0f;
 
 float lastTime;
 float deltaTime;
+
+const float frameTime = 0.015f;
+
+glm::vec2 GRAVITY = glm::vec2(0.0, -9.8 * 0.3);
+
+const float border = 10.0f;
+
+glm::mat4 mvp;
 
 enum KernelType
 {
@@ -56,25 +65,43 @@ float PI = 3.1415926535897f;
 
 float Poly6SmoothingKernel(float r, float h)
 {
-	if (r < 0 || r > h)
-		return 0;
-	return 315.0f / (64.0f * PI * pow(h, 9)) * pow((h*h - r*r), 3);
+	if (r <= 0.0 || r > h)
+		return 0.00001f;
+
+	return (4.0f * (h*h - r*r)*(h*h - r*r)*(h*h - r*r)) / (PI * powf(h, 8));
 }
 
 glm::vec2 SpikySmoothingKernelGradient(glm::vec2 r, float rDist, float h)
 {
-	if (rDist < 0 || rDist > h)
+	if (rDist <= 0.0f || rDist > h)
+		return glm::vec2(0.0);
+
+	return (-45 * (h - rDist)*(h - rDist) / (PI*powf(h, 6))) * glm::normalize(r);
+}
+
+glm::vec2 SpikySmoothingKernelGradient2(glm::vec2 r, float rDist, float h)
+{
+	if (rDist < 0.0f || rDist > h)
 		return glm::vec2();
-	// TODO length를 사용해서 미분을 한 후 r vector에 곱하는 것이 맞나?
-	return (-45 * (h - rDist)*(h - rDist) / (PI*pow(h, 6)))*r;
-	// return glm::vec2(-45 * (h - r.x)*(h - r.x) / (PI*pow(h, 6)), -45 * (h - r.y)*(h - r.y) / (PI*pow(h, 6)));
+	
+	return glm::vec2(-45 * (h - r.x)*(h - r.x) / (PI*powf(h, 6)), -45 * (h - r.y)*(h - r.y) / (PI*powf(h, 6)));
+}
+
+glm::vec2 SpikySmoothingKernelGradient3(glm::vec2 r, float rDist, float h)
+{
+	if (rDist <= 0.0f || rDist > h)
+		return glm::vec2(0.00001f, 0.00001f);
+
+	// q는 0부터 1사이
+	float q = rDist / h;
+	return -(30 * (1 - q)*(1 - q) / (PI*pow(h, 4)*q))*r;
 }
 
 float ViscosityLapacian(float r, float h)
 {
-	if (r < 0 || r > h)
-		return 0;
-	return 45 * (h - r) / (PI*pow(h, 6));
+	if (r <= 0.0f || r > h)
+		return 0.0001f;
+	return 45 * ((h - r) / h) / (PI*pow(h, 6));
 }
 
 int main(int argc, char **argv)
@@ -115,6 +142,12 @@ int main(int argc, char **argv)
 	ShaderProgram sphShader("SPH.vs", "SPH.fs");
 	sphShader.Use();
 
+	glm::mat4 model = glm::mat4();
+	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 60.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0, 0.0));
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+
+	mvp = projection * view * model;
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	GLfloat* particlesPoses;
 	// (x1,y1), (x2,y2)...
@@ -122,7 +155,6 @@ int main(int argc, char **argv)
 
 	Particle* particles;
 	particles = new Particle[particleRow * particleCol];
-	float dist = 0.01f;
 
 	for (int i = 0; i < particleRow; i++)
 	{
@@ -131,14 +163,14 @@ int main(int argc, char **argv)
 			int x = j - particleCol / 2;
 			int y = i - particleRow / 2;
 			particles[i * particleCol + j].position.x = x * dist;
-			particles[i * particleCol + j].position.y = y * dist - 0.5f;
-			particles[i * particleCol + j].density = 1.0f;
-			particles[i * particleCol + j].mass = 0.01f;
-			particles[i * particleCol + j].viscosity = 0.01f;
+			particles[i * particleCol + j].position.y = y * dist + 4.0f;
+			//particles[i * particleCol + j].density = restDensity;
+			particles[i * particleCol + j].mass = 1.0f;
+			particles[i * particleCol + j].viscosity = 0.4f;
 			particles[i * particleCol + j].acceleration = glm::vec2();
 			particles[i * particleCol + j].velocity = glm::vec2();
-			particles[i * particleCol + j].pressure = 0.01f;
-			particles[i * particleCol + j].gasconstant = 45.0f;
+			//particles[i * particleCol + j].pressure = 0.01f;
+			particles[i * particleCol + j].gasconstant = 5.0f;
 		}
 	}
 
@@ -163,10 +195,15 @@ int main(int argc, char **argv)
 	glBindVertexArray(0);
 
 	lastTime = glfwGetTime();
-	deltaTime = 0.0f;
-
+	
 	do
 	{
+		float currentTime = glfwGetTime();
+		if (currentTime - lastTime > frameTime)
+			lastTime = currentTime;
+		else
+			continue;
+
 		Update(particles, particleRow, particleCol);
 		
 		UpdateParticlesPos(particles, particlesPoses, particleRow, particleCol);
@@ -175,13 +212,12 @@ int main(int argc, char **argv)
 		// 현재 target에 바인드 된 데이터의 일부를 정제한다, 위 경우는 glBindBuffer를 particleBuffer로 했음 
 		// offset 부터 시작해서 size까지
 		glBufferSubData(GL_ARRAY_BUFFER, 0, particleRow * particleCol * sizeof(GLfloat) * 2, particlesPoses);
-		
+
 		Render(sphShader);
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
-
 	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 		glfwWindowShouldClose(window) == 0);
 
@@ -195,13 +231,13 @@ void Render(ShaderProgram& shader)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	shader.Use();
+	shader.SetUniformMatrix4f("MVP", mvp);
 
 	glBindVertexArray(VAO);
-	glPointSize(5);
+	glPointSize(3);
 	glDrawArrays(GL_POINTS, 0, particleRow * particleCol);
 }
 
-glm::vec2 GRAVITY = glm::vec2(0.0, -0.01);
 
 void Update(Particle* particles, int row, int col)
 {
@@ -210,35 +246,32 @@ void Update(Particle* particles, int row, int col)
 	{
 		for (int j = 0; j < col; j++)
 		{
+			int a = i*col + j;
+			particles[a].density = 0.0f;
 			for (int ii = 0; ii < row; ii++)
 			{
 				for (int jj = 0; jj < col; jj++)
 				{
-					int a = i*col + j, b = ii*col + jj;
+					int b = ii*col + jj;
 					float abDistance = glm::distance(particles[a].position, particles[b].position);
 					
 					if (a == b)
 						continue;
 
-					particles[a].density += particles[b].mass*Poly6SmoothingKernel(
-						abDistance, 
-						threshold);
-					particles[a].pressure = particles[a].gasconstant*(particles[a].density - restDensity);
+					particles[a].density += particles[b].mass * Poly6SmoothingKernel(abDistance, threshold);	
 				}
 			}
+			
+			particles[a].pressure = particles[a].gasconstant * (particles[a].density - restDensity);
 		}
 	}
-
-	float currentTime = glfwGetTime();
-	deltaTime = currentTime - lastTime;
-	lastTime = currentTime;
 
 	for (int i = 0; i < row; i++)
 	{
 		for (int j = 0; j < col; j++)
 		{
 			int a = i*col + j;
-			glm::vec2 gravityForce = particles[a].density * GRAVITY;
+			glm::vec2 gravityForce = GRAVITY * particles[a].density;
 			glm::vec2 pressureForce = glm::vec2();
 			glm::vec2 viscosityForce = glm::vec2();
 
@@ -249,48 +282,63 @@ void Update(Particle* particles, int row, int col)
 					int b = ii*col + jj;
 					if (a == b)
 						continue;
+
 					float abDistance = glm::distance(particles[a].position, particles[b].position);
 
-					pressureForce -= particles[b].mass*
-						((particles[a].pressure + particles[b].pressure) /
-						(2 * particles[b].density))*
-						SpikySmoothingKernelGradient(particles[i].position - particles[j].position, abDistance, threshold);
+					
+					pressureForce -= particles[b].mass*((particles[a].pressure + particles[b].pressure)/(2*particles[b].density))*
+							SpikySmoothingKernelGradient(particles[a].position - particles[b].position, abDistance, threshold);
 					
 					viscosityForce += particles[a].viscosity * particles[b].mass*
 						(particles[b].velocity - particles[a].velocity) / particles[b].density*
 						ViscosityLapacian(abDistance, threshold);
+				
+					if (!a && ii == 1 && jj == 1)
+					{
+						cout << "abDistance: " << abDistance << endl;
+						cout << "spiky:";
+						Debug::GetInstance()->Log(SpikySmoothingKernelGradient(particles[a].position - particles[b].position, abDistance, threshold));
+						cout << "density A:";
+						Debug::GetInstance()->Log(particles[a].density);
+						cout << "pressure A:";
+						Debug::GetInstance()->Log(particles[a].pressure);
+						cout << "density B:";
+						Debug::GetInstance()->Log(particles[b].density);
+						cout << "pressure B:";
+						Debug::GetInstance()->Log(particles[b].pressure);
+						cout << endl;
+					}
 				}
 			}
 
 			particles[a].acceleration = (pressureForce + gravityForce + viscosityForce) / particles[a].density;
-			particles[a].velocity += particles[a].acceleration * deltaTime;
-			particles[a].position += particles[a].velocity * deltaTime;
-		
-			if (particles[a].position.y < -1.0f)
+		}
+	}
+
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+		{
+			int a = i*col + j;
+			particles[a].velocity += particles[a].acceleration * frameTime;
+			particles[a].position += particles[a].velocity * frameTime;
+
+			if (particles[a].position.y < -border)
 			{
-				particles[a].position.y = -1.0f;
-				particles[a].velocity.y = -particles[a].velocity.y;
-				particles[a].velocity *= 0.1f;
+				particles[a].position.y = -border;
+				particles[a].velocity = -particles[a].velocity * 0.5f;
 			}
 
-			if (particles[a].position.y > 1.0f)
+			if (particles[a].position.x < -border)
 			{
-				particles[a].velocity.y = -particles[a].velocity.y;
-				particles[a].velocity *= 0.1f;
+				particles[a].position.x = -border;
+				particles[a].velocity = -particles[a].velocity * 0.5f;
 			}
 
-			if (particles[a].position.x < -1.0f)
+			if (particles[a].position.x > border)
 			{
-				particles[a].position.x = -1.0f;
-				particles[a].velocity.x = -particles[a].velocity.x;
-				particles[a].velocity *= 0.1f;
-			}
-
-			if (particles[a].position.x > 1.0f)
-			{
-				particles[a].position.x = 1.0f;
-				particles[a].velocity.x = -particles[a].velocity.x;
-				particles[a].velocity *= 0.1f;
+				particles[a].position.x = border;
+				particles[a].velocity = -particles[a].velocity * 0.5f;
 			}
 		}
 	}

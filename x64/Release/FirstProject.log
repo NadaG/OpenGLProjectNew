@@ -9,12 +9,12 @@ C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/imgproc.hpp(592): warnin
 C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/stitching/detail/motion_estimators.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/video/tracking.hpp(532): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\InputManager.h(15): warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
-sphmain.cpp(165): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-sphmain.cpp(232): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+sphmain.cpp(197): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+sphmain.cpp(201): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Generating code
-  2 of 452 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  26 of 508 functions ( 5.1%) were compiled, the rest were copied from previous compilation.
+    1 functions were new in current compilation
+    8 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Release\FirstProject.exe
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Release\FirstProject.pdb (Full PDB)
