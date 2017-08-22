@@ -97,11 +97,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\RENDER4\Downloads\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\RENDER4\Downloads\opencv\build\include;C:\Program Files\Assimp\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opencv_world320.lib;opencv_world320d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world320.lib;opencv_world320d.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\Assimp\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -145,10 +146,10 @@
     <ClCompile Include="main3.cpp" />
     <ClCompile Include="main4.cpp" />
     <ClCompile Include="main5.cpp" />
+    <ClCompile Include="main6.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ObjLoader.cpp" />
     <ClCompile Include="Particle.cpp" />
-    <ClCompile Include="PhongShader.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="SceneScript.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
@@ -173,6 +174,7 @@
     <None Include="packages.config" />
     <None Include="PhongShader.fs" />
     <None Include="PhongShader.vs" />
+    <None Include="Quad.vs" />
     <None Include="Shadow.fs" />
     <None Include="Shadow.vs" />
     <None Include="SimpleDepthShader.fs" />
@@ -181,6 +183,9 @@
     <None Include="SkyBoxShader.vs" />
     <None Include="SPH.fs" />
     <None Include="SPH.vs" />
+    <None Include="SSAO.fs" />
+    <None Include="SSAO_Geometry.fs" />
+    <None Include="SSAO_Geometry.vs" />
     <None Include="TextureShader.fs" />
     <None Include="TextureShader.vs" />
   </ItemGroup>
@@ -198,7 +203,6 @@
     <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="OpenGLHeader.h" />
     <ClInclude Include="Particle.h" />
-    <ClInclude Include="PhongShader.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="SceneScript.h" />
     <ClInclude Include="ShaderLoader.h" />
@@ -210,6 +214,8 @@
     <Import Project="..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets" Condition="Exists('..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" />
     <Import Project="..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
     <Import Project="..\packages\glm.0.9.8.4\build\native\glm.targets" Condition="Exists('..\packages\glm.0.9.8.4\build\native\glm.targets')" />
+    <Import Project="..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
+    <Import Project="..\packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\packages\Assimp.3.0.0\build\native\Assimp.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -218,5 +224,7 @@
     <Error Condition="!Exists('..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets'))" />
     <Error Condition="!Exists('..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets'))" />
     <Error Condition="!Exists('..\packages\glm.0.9.8.4\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glm.0.9.8.4\build\native\glm.targets'))" />
+    <Error Condition="!Exists('..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\Assimp.3.0.0\build\native\Assimp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Assimp.3.0.0\build\native\Assimp.targets'))" />
   </Target>
 </Project>

@@ -31,6 +31,6 @@ void main()
 			result += texture(image, outTexCoord - vec2(0.0, texOffset.y * i)).rgb * weight[i];
 		}
 	}
-	color = texture(image, outTexCoord).rgb;
+	
 	color = result;
 }
