@@ -14,7 +14,8 @@ enum MeshType
 	SPHERE = 1,
 	QUAD = 2,
 	BOX = 3,
-	EARTH = 4
+	EARTH = 4,
+	TREX = 5
 };
 
 class Mesh
@@ -22,7 +23,9 @@ class Mesh
 private:
 	// each face information
 	Vertex* vertices;
+	GLuint* indices;
 	int vertexNum;
+	int indexNum;
 
 	// Question color 정보는 보통 어디에? material information
 	glm::vec3 ambientColor;
@@ -39,8 +42,8 @@ public:
 	// 대입 연산자 주의할 것
 	Mesh(const Mesh& mesh) 
 	{ 
-		vertices = new Vertex[60000];
-		for (int i = 0; i < 60000; i++)
+		vertices = new Vertex[1000000];
+		for (int i = 0; i < 1000000; i++)
 			vertices[i] = mesh.vertices[i];
 		vertexNum = mesh.vertexNum;
 	}
@@ -61,6 +64,14 @@ public:
 	const glm::vec3& GetSpecular() { return specularColor; }
 	const Vertex& GetVertice(int index) { return vertices[index]; }
 	const int& GetVertexNum() { return vertexNum; }
+	GLuint* GetIndices() { return indices; }
+	const GLuint& GetIndexNum() { return indexNum; }
 
 	const GLenum GetDrawMode() { return drawMode; }
+};
+
+class Model
+{
+public:
+	
 };

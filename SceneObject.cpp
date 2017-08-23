@@ -45,8 +45,9 @@ void SceneObject::GenerateVBO(const Mesh& mesh)
 	// VAO 생성
 	GLuint sceneObjectVAO;
 	glGenVertexArrays(1, &sceneObjectVAO);
-	GLuint vertexBuffer;
+	GLuint vertexBuffer, indexBuffer;
 	glGenBuffers(1, &vertexBuffer);
+	glGenBuffers(1, &indexBuffer);
 
 	// 각각의 vertex array를 사용함
 	// vertex array object는 밑에서 정의할 glEnableVertexAttribArray(i)의 상태를 갖게 되는 object이다
@@ -54,7 +55,10 @@ void SceneObject::GenerateVBO(const Mesh& mesh)
 	// 그렇다고 실제로 vertex 정보가 저장된것은 아니다(단지 조합 정보)
 	glBindVertexArray(sceneObjectVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->mesh.GetVertexNum() * 14, vertexBufferDatas, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*this->mesh.GetVertexNum()*floatNum, vertexBufferDatas, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*this->mesh.GetIndexNum(), this->mesh.GetIndices(), GL_STATIC_DRAW);
 
 	int offset = 0;
 	int layoutSize;
@@ -80,6 +84,7 @@ void SceneObject::GenerateVBO(const Mesh& mesh)
 
 	this->vertexBuffer = vertexBuffer;
 	this->vertexArrayObject = sceneObjectVAO;
+	glBindVertexArray(0);
 }
 
 const glm::mat4 SceneObject::GetModelMatrix()

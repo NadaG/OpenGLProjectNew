@@ -121,7 +121,7 @@ int main(int argc, char **argv)
 	for (int i = 0; i < objNum; i++)
 		sceneObjects[i] = new SceneObject();
 
-	sceneObjects[0]->Scale(glm::vec3(0.1f, 0.1f, 0.1f));
+	sceneObjects[0]->Scale(glm::vec3(0.01f, 0.01f, 0.01f));
 	sceneObjects[0]->Translate(glm::vec3(0.0f, 0.0f, 0.0f));
 
 	sceneObjects[1]->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 30.0f);
@@ -131,12 +131,11 @@ int main(int argc, char **argv)
 	Mesh sphereMesh, cubeMesh, earthMesh, earthMesh2;
 	sphereMesh.LoadMesh(SPHERE);
 	cubeMesh.LoadMesh(BOX);
-	earthMesh.LoadMesh(EARTH);
-	earthMesh2.LoadMesh(EARTH);
+	earthMesh.LoadMesh(TREX);
+	earthMesh2.LoadMesh(TREX);
 	// 내부에서 vao id가 정해짐
 	sceneObjects[0]->GenerateVBO(earthMesh);
-	sceneObjects[1]->GenerateVBO(earthMesh2);
-
+	
 	for (int i = 0; i < lightNum; i++)
 	{
 		lights[i]->GenerateVBO(sphereMesh);
@@ -289,54 +288,47 @@ int main(int argc, char **argv)
 		lightColors.push_back(glm::vec3(rColor, gColor, bColor));
 	}
 
-	// aiprocess_triangulate는 triangle 형태가 아닌 model load 할 때 triangle로 불러들이는 것
-	// flipuvs는 y값은 flip하는 것
-	Assimp::Importer importer; 
-	const aiScene *scene = importer.ReadFile("", aiProcess_Triangulate | aiProcess_FlipUVs);
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-	{
-		cout << "Error::assimp::" << importer.GetErrorString() << endl;
-	}
-
-
-
 	// SRT의 순서대로 곱이 동작한다. 곱을 할때는 반대로임
 	do
 	{
-		// 1. geometry pass: render scene's geometry/color data into gbuffer
-		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		Render(camera, lights, sceneObjects, SSAO_GeometryShader, lightShader);
+		//// 1. geometry pass: render scene's geometry/color data into gbuffer
+		//glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//Render(camera, lights, sceneObjects, SSAO_GeometryShader, lightShader);
 
-		// 2. generate SSAO texture
-		// noise texture를 인풋으로 받아 occlusion factor 값을 아웃풋으로 함으로써 SSAO 텍스쳐 생성
-		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
-		glClear(GL_COLOR_BUFFER_BIT);
-		SSAO_Shader.Use();
-		for (int i = 0; i < 64; i++)
-			SSAO_Shader.SetUniformVector3f("samples[" + to_string(i) + "]", ssaoKernel[i]);
-		SSAO_Shader.SetUniformMatrix4f("projection", projection);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, gPosition);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, gNormal);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, noiseTexture);
-		renderQuad();
+		//// 2. generate SSAO texture
+		//// noise texture를 인풋으로 받아 occlusion factor 값을 아웃풋으로 함으로써 SSAO 텍스쳐 생성
+		//glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+		//glClear(GL_COLOR_BUFFER_BIT);
+		//SSAO_Shader.Use();
+		//for (int i = 0; i < 64; i++)
+		//	SSAO_Shader.SetUniformVector3f("samples[" + to_string(i) + "]", ssaoKernel[i]);
+		//SSAO_Shader.SetUniformMatrix4f("projection", projection);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, gPosition);
+		//glActiveTexture(GL_TEXTURE1);
+		//glBindTexture(GL_TEXTURE_2D, gNormal);
+		//glActiveTexture(GL_TEXTURE2);
+		//glBindTexture(GL_TEXTURE_2D, noiseTexture);
+		//renderQuad();
 
-		// 3. lighting pass: traditional deffered Blinn-Phong lighting with added screen-space ambient occlusion
+		//// 3. lighting pass: traditional deffered Blinn-Phong lighting with added screen-space ambient occlusion
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//phongShader.Use();
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, gPosition);
+		//glActiveTexture(GL_TEXTURE1);
+		//glBindTexture(GL_TEXTURE_2D, gNormal);
+		//glActiveTexture(GL_TEXTURE2);
+		//glBindTexture(GL_TEXTURE_2D, gDiffuse);
+		//glActiveTexture(GL_TEXTURE3);
+		//glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+		//renderQuad();
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		phongShader.Use();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, gPosition);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, gNormal);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, gDiffuse);
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
-		renderQuad();
+		Render(camera, lights, sceneObjects, lightShader, lightShader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -397,8 +389,7 @@ void Render(Camera* camera, Light* lights[], SceneObject** sceneObjects, ShaderP
 		lightSpaceMatrix = lightProjection * lightView;
 
 		// bind buffer를 굳이 하지 않더라도 vertex array object만 bind하면 알아서 됨
-		glBindVertexArray(sceneObjects[i]->GetVAO());
-
+		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, earthTex);
 
@@ -427,8 +418,10 @@ void Render(Camera* camera, Light* lights[], SceneObject** sceneObjects, ShaderP
 
 		// glDrawElements를 사용하려면 VAO가 필요함, 없을 경우 indices를 제대로 넣어줘야  하고
 		// VAO가 있을 경우 indices 자리에 NULL을 넣어주더라도 알아서 bind 된 VAO에 따라 그려줌
-		// glDrawElements(GL_TRIANGLES, 0, GL_FLOAT, indices);
-		glDrawArrays(GL_TRIANGLES, 0, sceneObjects[i]->GetMesh().GetVertexNum() * 3);
+		glBindVertexArray(sceneObjects[i]->GetVAO());
+		//glDrawArrays(GL_TRIANGLES, 0, sceneObjects[i]->GetMesh().GetVertexNum() * 3);
+		glDrawElements(GL_TRIANGLES, sceneObjects[i]->GetMesh().GetIndexNum(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 
 		// 5는 layout 총 개수
 		for (int j = 0; j < layoutNum; j++)
