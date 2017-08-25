@@ -76,7 +76,7 @@ void SceneObject::GenerateVBO(const Mesh& mesh)
 			layoutSize,
 			GL_FLOAT,
 			GL_FALSE,
-			sizeof(GLfloat) * 14, // stride
+			sizeof(GLfloat) * floatNum, // stride
 			(void*)(sizeof(GLfloat) * offset) // 하나의 vertex 정보 set에서 해당 layout이 얼마나 떨어져 있는지
 		);
 		offset += layoutSize;

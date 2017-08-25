@@ -177,7 +177,7 @@ void Mesh::LoadMesh(const MeshType& meshType)
 		// scene의 mMeshes에는 모든 mesh들이 저장되어 있다
 		// scene은 mRootNode를 가지고 있고 각 노드에는 mesh가 있다
 		Assimp::Importer importer;
-		const aiScene *scene = importer.ReadFile("Trex.OBJ", aiProcess_Triangulate | aiProcess_FlipUVs);
+		const aiScene *scene = importer.ReadFile("cubes.obj", aiProcess_Triangulate | aiProcess_FlipUVs);
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
 			cout << "Error::assimp::" << importer.GetErrorString() << endl;
@@ -194,12 +194,18 @@ void Mesh::LoadMesh(const MeshType& meshType)
 					vertices[j + offset].position.y = scene->mMeshes[i]->mVertices[j].y;
 					vertices[j + offset].position.z = scene->mMeshes[i]->mVertices[j].z;
 
-					vertices[j + offset].normal.x = scene->mMeshes[i]->mNormals[j].x;
-					vertices[j + offset].normal.y = scene->mMeshes[i]->mNormals[j].y;
-					vertices[j + offset].normal.z = scene->mMeshes[i]->mNormals[j].z;
+					if (scene->mMeshes[i]->HasNormals())
+					{
+						vertices[j + offset].normal.x = scene->mMeshes[i]->mNormals[j].x;
+						vertices[j + offset].normal.y = scene->mMeshes[i]->mNormals[j].y;
+						vertices[j + offset].normal.z = scene->mMeshes[i]->mNormals[j].z;
+					}
 
-					vertices[j + offset].uv.x = scene->mMeshes[i]->mTextureCoords[0][j].x;
-					vertices[j + offset].uv.y = scene->mMeshes[i]->mTextureCoords[0][j].y;
+					if (scene->mMeshes[i]->HasTextureCoords(j)) 
+					{
+						vertices[j + offset].uv.x = scene->mMeshes[i]->mTextureCoords[0][j].x;
+						vertices[j + offset].uv.y = scene->mMeshes[i]->mTextureCoords[0][j].y;
+					}
 				}
 				offset += scene->mMeshes[i]->mNumVertices;
 			}
@@ -210,9 +216,9 @@ void Mesh::LoadMesh(const MeshType& meshType)
 			{
 				for (int j = 0, jj = 0; j < scene->mMeshes[i]->mNumFaces; j++, jj += 3)
 				{
-					indices[jj + offset] = scene->mMeshes[i]->mFaces[j].mIndices[0];
-					indices[jj + offset + 1] = scene->mMeshes[i]->mFaces[j].mIndices[1];
-					indices[jj + offset + 2] = scene->mMeshes[i]->mFaces[j].mIndices[2];
+					indices[jj + offset] = offset + scene->mMeshes[i]->mFaces[j].mIndices[0];
+					indices[jj + offset + 1] = offset + scene->mMeshes[i]->mFaces[j].mIndices[1];
+					indices[jj + offset + 2] = offset + scene->mMeshes[i]->mFaces[j].mIndices[2];
 				}
 				offset += scene->mMeshes[i]->mNumFaces * 3;
 			}

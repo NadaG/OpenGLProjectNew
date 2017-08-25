@@ -35,6 +35,11 @@ private:
 	GLenum drawMode = GL_POINT;
 	MeshType meshType;
 
+	std::vector<aiMesh> meshes;
+
+	Mesh Mesh::processMesh(aiMesh *mesh, const aiScene *scene);
+	void Mesh::processNode(aiNode *node, const aiScene *scene);
+
 public:
 	Mesh();
 	Mesh(MeshType meshType);
