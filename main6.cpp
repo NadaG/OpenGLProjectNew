@@ -44,12 +44,9 @@ float exposure = 1.0f;
 GLuint earthTex;
 GLuint earthNormalTex;
 
-
 void Render(Camera* camera, Light* light[], SceneObject** sceneObjects, ShaderProgram& shader, ShaderProgram& lightShader);
 void renderQuad();
 float lerp(float a, float b, float f);
-
-glm::vec3 cameraInitPos;
 
 int main(int argc, char **argv)
 {
@@ -128,13 +125,13 @@ int main(int argc, char **argv)
 	sceneObjects[1]->Scale(glm::vec3(0.05f, 0.05f, 0.05f));
 	sceneObjects[1]->Translate(glm::vec3(10.0f, 0.0f, 0.0f));
 
-	Mesh sphereMesh, cubeMesh, earthMesh, earthMesh2;
+	Mesh sphereMesh, cubeMesh, trexMesh, earthMesh2;
 	sphereMesh.LoadMesh(SPHERE);
 	cubeMesh.LoadMesh(BOX);
-	earthMesh.LoadMesh(TREX);
+	trexMesh.LoadMesh(TREX);
 	earthMesh2.LoadMesh(TREX);
 	// 내부에서 vao id가 정해짐
-	sceneObjects[0]->GenerateVBO(earthMesh);
+	sceneObjects[0]->GenerateVBO(trexMesh);
 	
 	for (int i = 0; i < lightNum; i++)
 	{
@@ -149,8 +146,7 @@ int main(int argc, char **argv)
 	lights[0]->AttachScript(lightScript);
 
 	camera->ScriptsAwake();
-	cameraInitPos = camera->GetPosition();
-
+	
 	for (int i = 0; i < lightNum; i++)
 		lights[i]->ScriptsAwake();
 	for (int i = 0; i < objNum; i++)
@@ -245,11 +241,16 @@ int main(int argc, char **argv)
 	vector<glm::vec3> ssaoKernel;
 	for (int i = 0; i < 64; i++)
 	{
+		// x, y는 -1부터 1까지로 하고
+		// z는 0부터 1까지임
 		glm::vec3 sample(randomFloats(generator)*2.0 - 1.0, randomFloats(generator)*2.0 - 1.0, randomFloats(generator));
+		// normalizing을 함으로써 구를 만듦
 		sample = glm::normalize(sample);
+		// 또다시 random 수를 곱함
 		sample *= randomFloats(generator);
 		float scale = float(i) / 64.0;
 
+		// lerp를 사용해서 최소의 거리를 0.1로 두고, 제곱을 함으로써 가까운 쪽에 많이 두게 함
 		scale = lerp(0.1f, 1.0f, scale*scale);
 		sample *= scale;
 		ssaoKernel.push_back(sample);
@@ -291,44 +292,41 @@ int main(int argc, char **argv)
 	// SRT의 순서대로 곱이 동작한다. 곱을 할때는 반대로임
 	do
 	{
-		//// 1. geometry pass: render scene's geometry/color data into gbuffer
-		//glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//Render(camera, lights, sceneObjects, SSAO_GeometryShader, lightShader);
+		// 1. geometry pass: render scene's geometry/color data into gbuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		Render(camera, lights, sceneObjects, SSAO_GeometryShader, lightShader);
 
-		//// 2. generate SSAO texture
-		//// noise texture를 인풋으로 받아 occlusion factor 값을 아웃풋으로 함으로써 SSAO 텍스쳐 생성
-		//glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
-		//glClear(GL_COLOR_BUFFER_BIT);
-		//SSAO_Shader.Use();
-		//for (int i = 0; i < 64; i++)
-		//	SSAO_Shader.SetUniformVector3f("samples[" + to_string(i) + "]", ssaoKernel[i]);
-		//SSAO_Shader.SetUniformMatrix4f("projection", projection);
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, gPosition);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, gNormal);
-		//glActiveTexture(GL_TEXTURE2);
-		//glBindTexture(GL_TEXTURE_2D, noiseTexture);
-		//renderQuad();
+		// 2. generate SSAO texture
+		// noise texture를 인풋으로 받아 occlusion factor 값을 아웃풋으로 함으로써 SSAO 텍스쳐 생성
+		glBindFramebuffer(GL_FRAMEBUFFER, ssaoFBO);
+		glClear(GL_COLOR_BUFFER_BIT);
+		SSAO_Shader.Use();
+		for (int i = 0; i < 64; i++)
+			SSAO_Shader.SetUniformVector3f("samples[" + to_string(i) + "]", ssaoKernel[i]);
+		SSAO_Shader.SetUniformMatrix4f("projection", projection);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gPosition);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, gNormal);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, noiseTexture);
+		renderQuad();
 
-		//// 3. lighting pass: traditional deffered Blinn-Phong lighting with added screen-space ambient occlusion
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//phongShader.Use();
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, gPosition);
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, gNormal);
-		//glActiveTexture(GL_TEXTURE2);
-		//glBindTexture(GL_TEXTURE_2D, gDiffuse);
-		//glActiveTexture(GL_TEXTURE3);
-		//glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
-		//renderQuad();
-
+		// 4. lighting pass: traditional deffered Blinn-Phong lighting with added screen-space ambient occlusion
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		Render(camera, lights, sceneObjects, lightShader, lightShader);
+		phongShader.Use();
+		phongShader.SetUniformVector3f("light.Color", glm::vec3(1.0, 0.0, 1.0));
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gPosition);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, gNormal);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, gDiffuse);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+		renderQuad();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -355,7 +353,7 @@ void Render(Camera* camera, Light* lights[], SceneObject** sceneObjects, ShaderP
 	glm::mat4 view = glm::lookAt
 	(
 		camera->testPosition(),
-		glm::vec3(0.0),
+		glm::vec3(0.0f, camera->testPosition().y, 0.0f),
 		glm::vec3(0, 1.0f, 0.0f)
 	);
 
@@ -372,9 +370,10 @@ void Render(Camera* camera, Light* lights[], SceneObject** sceneObjects, ShaderP
 	bloom = !InputManager::GetInstance()->IsKey(GLFW_KEY_1);
 
 	if (InputManager::GetInstance()->IsKey(GLFW_KEY_2))
-	{
 		camera->Rotate(glm::vec3(0.0, 1.0, 0.0), 0.01);
-	}
+
+	if (InputManager::GetInstance()->IsKey(GLFW_KEY_3))
+		camera->Rotate(glm::vec3(0.0, -1.0, 0.0), 0.01);
 
 	// 사용할 셰이더 프로그램 및 오브젝트 프로그램
 	for (int i = 0; i < objNum; i++)
@@ -398,7 +397,7 @@ void Render(Camera* camera, Light* lights[], SceneObject** sceneObjects, ShaderP
 
 		shader.SetUniformMatrix4f("MVP", mvp);
 		shader.SetUniformVector3f("lightPos", lights[0]->GetPosition());
-		shader.SetUniformVector3f("lightColor", glm::vec3(1.0, 1.0, 1.0));
+		shader.SetUniformVector3f("lightColor", glm::vec3(1.0, 0.0, 1.0));
 		shader.SetUniformVector3f("eyePos", camera->testPosition());
 		shader.SetUniformMatrix4f("model", sceneObjects[i]->GetModelMatrix());
 		shader.SetUniformMatrix4f("view", view);
@@ -410,7 +409,7 @@ void Render(Camera* camera, Light* lights[], SceneObject** sceneObjects, ShaderP
 		shader.SetUniform1f("material.shininess", 32);
 		shader.SetUniform1i("diffuseMap", 0);
 		shader.SetUniform1i("normalMap", 1);
-
+		
 		// 5는 layout 총 개수
 		// position, color, normal, uv
 		for (int j = 0; j < layoutNum; j++)

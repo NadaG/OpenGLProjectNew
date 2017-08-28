@@ -177,7 +177,7 @@ void Mesh::LoadMesh(const MeshType& meshType)
 		// scene의 mMeshes에는 모든 mesh들이 저장되어 있다
 		// scene은 mRootNode를 가지고 있고 각 노드에는 mesh가 있다
 		Assimp::Importer importer;
-		const aiScene *scene = importer.ReadFile("cubes.obj", aiProcess_Triangulate | aiProcess_FlipUVs);
+		const aiScene *scene = importer.ReadFile("Trex.obj", aiProcess_Triangulate | aiProcess_FlipUVs);
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
 			cout << "Error::assimp::" << importer.GetErrorString() << endl;
@@ -211,16 +211,18 @@ void Mesh::LoadMesh(const MeshType& meshType)
 			}
 			vertexNum = offset;
 
+			int indexOffset = 0;
 			offset = 0;
 			for (int i = 0; i < scene->mNumMeshes; i++)
 			{
 				for (int j = 0, jj = 0; j < scene->mMeshes[i]->mNumFaces; j++, jj += 3)
 				{
-					indices[jj + offset] = offset + scene->mMeshes[i]->mFaces[j].mIndices[0];
-					indices[jj + offset + 1] = offset + scene->mMeshes[i]->mFaces[j].mIndices[1];
-					indices[jj + offset + 2] = offset + scene->mMeshes[i]->mFaces[j].mIndices[2];
+					indices[jj + offset] = indexOffset + scene->mMeshes[i]->mFaces[j].mIndices[0];
+					indices[jj + offset + 1] = indexOffset + scene->mMeshes[i]->mFaces[j].mIndices[1];
+					indices[jj + offset + 2] = indexOffset + scene->mMeshes[i]->mFaces[j].mIndices[2];
 				}
 				offset += scene->mMeshes[i]->mNumFaces * 3;
+				indexOffset += scene->mMeshes[i]->mNumVertices;
 			}
 			indexNum = offset;
 		}
