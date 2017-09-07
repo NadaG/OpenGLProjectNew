@@ -32,3 +32,33 @@ public:
 
 	bool operator==(const Particle& r) { return this->id == r.id; }
 };
+
+class PBFParticle
+{
+public:
+	PBFParticle()
+	{}
+
+	PBFParticle(const PBFParticle& other)
+	{
+		this->id = other.id;
+		this->density = other.density;
+		this->lambda = other.lambda;
+		this->position = other.position;
+		this->deltaP = other.deltaP;
+		this->predictPosition = other.predictPosition;
+		this->velocity = other.velocity;
+		this->force = other.force;
+	}
+
+	int id;
+	float density;
+	float lambda;
+	glm::vec2 position;
+	glm::vec2 deltaP;
+	glm::vec2 predictPosition;
+	glm::vec2 velocity;
+	glm::vec2 force;
+
+	bool operator==(const PBFParticle& r) { return this->id == r.id; }
+};
