@@ -18,89 +18,70 @@
 //void UpdateParticlesPos(Particle* particles, GLfloat* particlesPoses, int row, int col);
 //
 //GLuint VAO;
-//int particleRow = 51;
-//int particleCol = 31;
+//int particleRow = 41;
+//int particleCol = 11;
 //
-//const float threshold = 1.2f;
+//const float threshold = 1.0f;
 //const float dist = 0.5f;
-//const float restDensity = 5.0f;
+//const float restDensity = 4.0f;
+//const float surfaceTension = 1.0f;
+//const float gasconstant = 45.3f;
+//
+//const float yPosRelative = 0.0f;
+//const float xPosRelative = -7.0f;
 //
 //float lastTime;
 //float deltaTime;
 //
-//const float frameTime = 0.015f;
+//const float frameTime = 0.02f;
 //
-//glm::vec2 GRAVITY = glm::vec2(0.0, -9.8 * 0.3);
+//glm::vec2 GRAVITY = glm::vec2(0.0, -9.8 * 0.1);
 //
 //const float border = 10.0f;
 //
+//std::vector<Particle*>** table;
+//
 //glm::mat4 mvp;
 //
-//enum KernelType
-//{
-//	POLY6, 
-//	SPIKY_GRADIENT,
-//	VISCOCITY_CURL
-//};
-//
 //float PI = 3.1415926535897f;
-//
-////float SmoothingKernel(float rDist, float h, KernelType kernelType)
-////{
-////	if (rDist >= 0 && rDist <= h)
-////	{
-////		switch (kernelType)
-////		{
-////		case POLY6:
-////			return 315.0f/(64.0f * PI * h*h*h*h*h*h*h*h*h)*(h*h - rDist*rDist)*(h*h - rDist*rDist)*(h*h - rDist*rDist);
-////		case SPIKY_GRADIENT:
-////			return -(45 * (h - rDist)*(h - rDist)) / (PI*h*h*h*h*h*h) + 45 * (h - rDist)*(h - rDist)*(-h + 2 * rDist) / (PI*h*h*h*h*h*h*h);
-////		case VISCOCITY_CURL:
-////			return 45 * (h - rDist) / (PI*h*h*h*h*h*h);
-////		}
-////	}
-////	else
-////		return 0;
-////}
+//const float minDist = 0.00f;
 //
 //float Poly6SmoothingKernel(float r, float h)
 //{
-//	if (r <= 0.0 || r > h)
+//	if (r <= minDist || r > h)
 //		return 0.00001f;
 //
-//	return (4.0f * (h*h - r*r)*(h*h - r*r)*(h*h - r*r)) / (PI * powf(h, 8));
+//	return (315.0f * (h*h - r*r)*(h*h - r*r)*(h*h - r*r)) / (64 * PI * powf(h, 9));
+//}
+//
+//glm::vec2 Poly6SmoothingKernelGradient(glm::vec2 r, float rDist, float h)
+//{
+//	if (rDist <= minDist || rDist > h)
+//		return glm::vec2(0.0);
+//
+//	return -945 * (h*h - rDist*rDist)*(h*h - rDist*rDist)*rDist / (32 * powf(h, 9)*PI)*glm::normalize(r);
+//}
+//
+//float Poly6SmoothingKernelLaplacian(float r, float h)
+//{
+//	if (r <= minDist || r > h)
+//		return 0.00001f;
+//
+//	return -945.0f*(h*h - 5 * r*r)*(h*h - r*r) / (32.0f*PI*powf(h, 9));
 //}
 //
 //glm::vec2 SpikySmoothingKernelGradient(glm::vec2 r, float rDist, float h)
 //{
-//	if (rDist <= 0.0f || rDist > h)
-//		return glm::vec2(0.0);
+//	if (rDist <= minDist || rDist > h)
+//		return glm::vec2(0.00001f);
 //
 //	return (-45 * (h - rDist)*(h - rDist) / (PI*powf(h, 6))) * glm::normalize(r);
 //}
 //
-//glm::vec2 SpikySmoothingKernelGradient2(glm::vec2 r, float rDist, float h)
-//{
-//	if (rDist < 0.0f || rDist > h)
-//		return glm::vec2();
-//	
-//	return glm::vec2(-45 * (h - r.x)*(h - r.x) / (PI*powf(h, 6)), -45 * (h - r.y)*(h - r.y) / (PI*powf(h, 6)));
-//}
-//
-//glm::vec2 SpikySmoothingKernelGradient3(glm::vec2 r, float rDist, float h)
-//{
-//	if (rDist <= 0.0f || rDist > h)
-//		return glm::vec2(0.00001f, 0.00001f);
-//
-//	// q는 0부터 1사이
-//	float q = rDist / h;
-//	return -(30 * (1 - q)*(1 - q) / (PI*pow(h, 4)*q))*r;
-//}
-//
 //float ViscosityLapacian(float r, float h)
 //{
-//	if (r <= 0.0f || r > h)
-//		return 0.0001f;
+//	if (r <= 0.001f || r > h)
+//		return 0.00001f;
 //	return 45 * ((h - r) / h) / (PI*pow(h, 6));
 //}
 //
@@ -162,15 +143,14 @@
 //		{
 //			int x = j - particleCol / 2;
 //			int y = i - particleRow / 2;
-//			particles[i * particleCol + j].position.x = x * dist;
-//			particles[i * particleCol + j].position.y = y * dist + 4.0f;
-//			//particles[i * particleCol + j].density = restDensity;
-//			particles[i * particleCol + j].mass = 1.0f;
-//			particles[i * particleCol + j].viscosity = 0.4f;
-//			particles[i * particleCol + j].acceleration = glm::vec2();
-//			particles[i * particleCol + j].velocity = glm::vec2();
-//			//particles[i * particleCol + j].pressure = 0.01f;
-//			particles[i * particleCol + j].gasconstant = 5.0f;
+//			int a = i*particleCol + j;
+//			particles[a].position.x = x * dist + xPosRelative;
+//			particles[a].position.y = y * dist + yPosRelative;
+//			particles[a].mass = 1.0f;
+//			particles[a].viscosity = 0.4f;
+//			particles[a].acceleration = glm::vec2();
+//			particles[a].velocity = glm::vec2();
+//			particles[a].id = a;
 //		}
 //	}
 //
@@ -183,9 +163,6 @@
 //
 //	UpdateParticlesPos(particles, particlesPoses, particleRow, particleCol);
 //	glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
-//	
-//	// drawArrays를 해서 단순히 vertex의 array를 주는 경우에는 GL_ARRAY_BUFFER를 쓰고
-//	// drawElements를 하려고 indices를 주는 경우에는 GL_ELEMENT_ARRAY_BUFFER를 쓴다
 //	glBufferData(GL_ARRAY_BUFFER, particleRow * particleCol * sizeof(GLfloat) * 2, particlesPoses, GL_STATIC_DRAW);
 //
 //	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void*)0);
@@ -195,6 +172,11 @@
 //	glBindVertexArray(0);
 //
 //	lastTime = glfwGetTime();
+//	
+//	// 좌우 상하단 border 각각 2크기의 padding을 둠
+//	table = new std::vector<Particle*>*[border * 2 + 2];
+//	for (int i = 0; i < border * 2 + 2; i++)
+//		table[i] = new std::vector<Particle*>[border * 2 + 2];
 //	
 //	do
 //	{
@@ -238,83 +220,119 @@
 //	glDrawArrays(GL_POINTS, 0, particleRow * particleCol);
 //}
 //
-//
 //void Update(Particle* particles, int row, int col)
 //{
-//	// density 및 pressure 계산
+//	// table 초기화
+//	for (int i = 0; i < border * 2 + 2; i++)
+//	{
+//		for (int j = 0; j < border * 2 + 2; j++)
+//		{
+//			table[i][j].clear();
+//		}
+//	}
+//
+//	// hashing을 통해 table setting
+//	for (int i = 0; i < row; i++)
+//	{
+//		for (int j = 0; j < col; j++)
+//		{
+//			int a = i*col + j;
+//			// border padding을 상하좌우 2로 둠으로써 border 끝에 걸린 것을 처리함
+//			int ii = particles[a].position.x + (int)border + 1;
+//			int jj = particles[a].position.y + (int)border + 1;
+//			table[ii][jj].push_back(&particles[a]);
+//		}
+//	}
+//
+//	// density, pressure 및 normal 계산
 //	for (int i = 0; i < row; i++)
 //	{
 //		for (int j = 0; j < col; j++)
 //		{
 //			int a = i*col + j;
 //			particles[a].density = 0.0f;
-//			for (int ii = 0; ii < row; ii++)
-//			{
-//				for (int jj = 0; jj < col; jj++)
-//				{
-//					int b = ii*col + jj;
-//					float abDistance = glm::distance(particles[a].position, particles[b].position);
-//					
-//					if (a == b)
-//						continue;
+//			particles[a].normal = glm::vec2(0.0f);
 //
-//					particles[a].density += particles[b].mass * Poly6SmoothingKernel(abDistance, threshold);	
+//			for (int di = -3; di <= 3; di++)
+//			{
+//				for (int dj = -3; dj <= 3; dj++)
+//				{
+//					int ii = particles[a].position.x + (int)border + 1;
+//					int jj = particles[a].position.y + (int)border + 1;
+//					
+//					if (ii + di < 0 || ii + di > border * 2 + 1 || jj + dj < 0 || jj + dj > border * 2 + 1)
+//						continue;
+//					
+//					for (int k = 0; k < table[ii + di][jj + dj].size(); k++)
+//					{
+//						float abDistance = glm::distance(particles[a].position, table[ii + di][jj + dj][k]->position);
+//
+//						if (particles[a] == *table[ii + di][jj + dj][k])
+//							continue;
+//
+//						particles[a].density += table[ii + di][jj + dj][k]->mass * Poly6SmoothingKernel(abDistance, threshold);
+//						particles[a].normal += table[ii + di][jj + dj][k]->mass *
+//							Poly6SmoothingKernelGradient(particles[a].position - table[ii + di][jj + dj][k]->position, abDistance, threshold)
+//							/ table[ii + di][jj + dj][k]->density;
+//					}
 //				}
 //			}
-//			
-//			particles[a].pressure = particles[a].gasconstant * (particles[a].density - restDensity);
+//
+//			particles[a].pressure = gasconstant * (particles[a].density - restDensity);
 //		}
 //	}
 //
+//	// force와 acceleration 계산
 //	for (int i = 0; i < row; i++)
 //	{
 //		for (int j = 0; j < col; j++)
 //		{
 //			int a = i*col + j;
 //			glm::vec2 gravityForce = GRAVITY * particles[a].density;
-//			glm::vec2 pressureForce = glm::vec2();
-//			glm::vec2 viscosityForce = glm::vec2();
+//			glm::vec2 pressureForce = glm::vec2(0.0f);
+//			glm::vec2 viscosityForce = glm::vec2(0.0f);
+//			glm::vec2 surfaceForce = glm::vec2(0.0f);
+//			float normalDist = glm::length(particles[a].normal);
+//			float colorFieldLaplacian = 0.0f;
 //
-//			for (int ii = 0; ii < row; ii++)
+//			for (int di = -3; di <= 3; di++)
 //			{
-//				for (int jj = 0; jj < col; jj++)
+//				for (int dj = -3; dj <= 3; dj++)
 //				{
-//					int b = ii*col + jj;
-//					if (a == b)
+//					int ii = particles[a].position.x + (int)border + 1;
+//					int jj = particles[a].position.y + (int)border + 1;
+//
+//					if (ii + di < 0 || ii + di > border * 2 + 1 || jj + dj < 0 || jj + dj > border * 2 + 1)
 //						continue;
 //
-//					float abDistance = glm::distance(particles[a].position, particles[b].position);
-//
-//					
-//					pressureForce -= particles[b].mass*((particles[a].pressure + particles[b].pressure)/(2*particles[b].density))*
-//							SpikySmoothingKernelGradient(particles[a].position - particles[b].position, abDistance, threshold);
-//					
-//					viscosityForce += particles[a].viscosity * particles[b].mass*
-//						(particles[b].velocity - particles[a].velocity) / particles[b].density*
-//						ViscosityLapacian(abDistance, threshold);
-//				
-//					if (!a && ii == 1 && jj == 1)
+//					for (int k = 0; k < table[ii + di][jj + dj].size(); k++)
 //					{
-//						cout << "abDistance: " << abDistance << endl;
-//						cout << "spiky:";
-//						Debug::GetInstance()->Log(SpikySmoothingKernelGradient(particles[a].position - particles[b].position, abDistance, threshold));
-//						cout << "density A:";
-//						Debug::GetInstance()->Log(particles[a].density);
-//						cout << "pressure A:";
-//						Debug::GetInstance()->Log(particles[a].pressure);
-//						cout << "density B:";
-//						Debug::GetInstance()->Log(particles[b].density);
-//						cout << "pressure B:";
-//						Debug::GetInstance()->Log(particles[b].pressure);
-//						cout << endl;
+//						Particle* particleB = table[ii + di][jj + dj][k];
+//
+//						if (particles[a] == *table[ii + di][jj + dj][k])
+//							continue;
+//
+//						float abDistance = glm::distance(particles[a].position, particleB->position);
+//
+//						pressureForce -= particleB->mass*((particles[a].pressure + particleB->pressure) / (2 * particleB->density))*
+//							SpikySmoothingKernelGradient(particles[a].position - particleB->position, abDistance, threshold);
+//
+//						viscosityForce += particles[a].viscosity * particleB->mass*
+//							(particleB->velocity - particles[a].velocity) / particleB->density*
+//							ViscosityLapacian(abDistance, threshold);
+//
+//						colorFieldLaplacian += particles[a].mass * Poly6SmoothingKernelLaplacian(abDistance, threshold) / particleB->density;
+//						if (normalDist > 0.0001f)
+//							surfaceForce = -surfaceTension * colorFieldLaplacian * particles[a].normal / normalDist;
 //					}
 //				}
 //			}
 //
-//			particles[a].acceleration = (pressureForce + gravityForce + viscosityForce) / particles[a].density;
+//			particles[a].acceleration = (pressureForce + gravityForce + viscosityForce + surfaceForce) / particles[a].density;
 //		}
 //	}
 //
+//	// velocity와 position 계산
 //	for (int i = 0; i < row; i++)
 //	{
 //		for (int j = 0; j < col; j++)
@@ -323,22 +341,22 @@
 //			particles[a].velocity += particles[a].acceleration * frameTime;
 //			particles[a].position += particles[a].velocity * frameTime;
 //
-//			if (particles[a].position.y < -border)
+//			if (particles[a].position.y <= -border)
 //			{
-//				particles[a].position.y = -border;
 //				particles[a].velocity = -particles[a].velocity * 0.5f;
+//				particles[a].position.y = -border + 0.01f;
 //			}
 //
-//			if (particles[a].position.x < -border)
+//			if (particles[a].position.x <= -border)
 //			{
-//				particles[a].position.x = -border;
 //				particles[a].velocity = -particles[a].velocity * 0.5f;
+//				particles[a].position.x = -border + 0.01f;
 //			}
 //
-//			if (particles[a].position.x > border)
+//			if (particles[a].position.x >= border)
 //			{
-//				particles[a].position.x = border;
 //				particles[a].velocity = -particles[a].velocity * 0.5f;
+//				particles[a].position.x = border - 0.01f;
 //			}
 //		}
 //	}

@@ -147,9 +147,11 @@
     <ClCompile Include="main4.cpp" />
     <ClCompile Include="main5.cpp" />
     <ClCompile Include="main6.cpp" />
+    <ClCompile Include="main7.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ObjLoader.cpp" />
     <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="pbrmain.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="SceneScript.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
@@ -172,6 +174,8 @@
     <None Include="LightShader.fs" />
     <None Include="LightShader.vs" />
     <None Include="packages.config" />
+    <None Include="PBR.fs" />
+    <None Include="PBR.vs" />
     <None Include="PhongShader.fs" />
     <None Include="PhongShader.vs" />
     <None Include="Quad.vs" />
@@ -184,6 +188,7 @@
     <None Include="SPH.fs" />
     <None Include="SPH.vs" />
     <None Include="SSAO.fs" />
+    <None Include="SSAO_Blur.fs" />
     <None Include="SSAO_Geometry.fs" />
     <None Include="SSAO_Geometry.vs" />
     <None Include="TextureShader.fs" />

@@ -25,6 +25,12 @@
     <Filter Include="SPHShader">
       <UniqueIdentifier>{57bc3f9d-8f75-4ff1-8b79-3c07cd66f10c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PBF">
+      <UniqueIdentifier>{15b12bdd-110a-4228-b6ab-d8cf3deb2280}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PBR">
+      <UniqueIdentifier>{7418dd8e-2141-4e1b-8555-6417d8260dbb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -89,6 +95,12 @@
     </ClCompile>
     <ClCompile Include="main6.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main7.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pbrmain.cpp">
+      <Filter>PBR</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -181,6 +193,15 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="SSAO.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SSAO_Blur.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PBR.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="PBR.fs">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
