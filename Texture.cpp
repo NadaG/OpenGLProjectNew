@@ -14,7 +14,7 @@ void GenerateDatas(GLubyte* data, cv::Mat image)
 	}
 }
 
-const int& Texture::GenerateTexture(string file, int TextureIndex)
+const int& Texture::GenerateTexture(string file)
 {
 	// load image
 	cv::Mat image = cv::imread(file, 1);
@@ -24,16 +24,13 @@ const int& Texture::GenerateTexture(string file, int TextureIndex)
 	GLuint imageTexture;
 	glGenTextures(1, &imageTexture);
 	glBindTexture(GL_TEXTURE_2D, imageTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.cols, image.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.cols, image.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
-	glActiveTexture(TextureIndex);
-	glBindTexture(GL_TEXTURE_2D, imageTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	return imageTexture;
 }

@@ -10,5 +10,7 @@ public:
 	void Start();
 	void Update();
 
+	glm::vec3 color;
+
 private:
 };

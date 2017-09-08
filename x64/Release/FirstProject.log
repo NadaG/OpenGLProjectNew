@@ -1,4 +1,4 @@
-﻿  PBFmain.cpp
+﻿  pbrmain.cpp
 C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/core/mat.hpp(2586): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/core/persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/core/utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
@@ -14,14 +14,19 @@ c:\users\render4\documents\visual studio 2015\projects\firstproject\packages\ass
 c:\users\render4\documents\visual studio 2015\projects\firstproject\packages\assimp.3.0.0\build\native\include\assimp\matrix3x3.inl : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\packages\assimp.3.0.0\build\native\include\assimp\matrix4x4.inl : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\InputManager.h(15): warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
-PBFmain.cpp(158): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-PBFmain.cpp(161): warning C4244: 'initializing': conversion from 'float' to 'std::size_t', possible loss of data
-PBFmain.cpp(163): warning C4244: 'initializing': conversion from 'float' to 'std::size_t', possible loss of data
-PBFmain.cpp(167): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+pbrmain.cpp(182): warning C4305: 'argument': truncation from 'double' to 'float'
+pbrmain.cpp(185): warning C4305: 'argument': truncation from 'double' to 'float'
+pbrmain.cpp(362): warning C4305: 'initializing': truncation from 'double' to 'float'
+pbrmain.cpp(400): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+pbrmain.cpp(440): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+pbrmain.cpp(442): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+pbrmain.cpp(444): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+pbrmain.cpp(446): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+pbrmain.cpp(448): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
   Generating code
-  23 of 545 functions ( 4.2%) were compiled, the rest were copied from previous compilation.
+  2 of 1018 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    12 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Release\FirstProject.exe
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Release\FirstProject.pdb (Full PDB)
