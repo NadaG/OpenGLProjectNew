@@ -18,5 +18,6 @@ c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject
 c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\pbfmain.cpp(161): warning C4244: 'initializing': conversion from 'float' to 'std::size_t', possible loss of data
 c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\pbfmain.cpp(163): warning C4244: 'initializing': conversion from 'float' to 'std::size_t', possible loss of data
 c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\pbfmain.cpp(167): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Debug\FirstProject.exe
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Debug\FirstProject.pdb (Partial PDB)
