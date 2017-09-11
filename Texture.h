@@ -8,7 +8,7 @@ public:
 	Texture(){}
 
 	const int& GenerateShadowTexture();
-	const int& GenerateTexture(string file);
+	const int GenerateTexture(string file, int nrComponents);
 	const int& GenerateFloatingPointFramebufferTexture();
 	const int& GenerateDepthRenderBufferObject();
 

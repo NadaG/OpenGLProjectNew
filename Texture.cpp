@@ -14,17 +14,25 @@ void GenerateDatas(GLubyte* data, cv::Mat image)
 	}
 }
 
-const int& Texture::GenerateTexture(string file)
+const int Texture::GenerateTexture(string file, int nrComponents)
 {
 	// load image
 	cv::Mat image = cv::imread(file, 1);
 	GLubyte* imageData = new GLubyte[image.rows * image.cols * 3];
 	GenerateDatas(imageData, image);
 
+	GLenum format;
+	if (nrComponents == 1)
+		format = GL_RED;
+	else if (nrComponents == 3)
+		format = GL_RGB;
+	else if (nrComponents == 4)
+		format = GL_RGBA;
+
 	GLuint imageTexture;
 	glGenTextures(1, &imageTexture);
 	glBindTexture(GL_TEXTURE_2D, imageTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.cols, image.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, image.cols, image.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
