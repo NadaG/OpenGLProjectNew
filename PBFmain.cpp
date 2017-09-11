@@ -23,7 +23,7 @@ int particleCol = 11;
 
 const float threshold = 1.0f;
 const float dist = 0.5f;
-const float restDensity = 1000.0f;
+const float restDensity = 4.0f;
 const float surfaceTension = 1.0f;
 const float gasconstant = 45.3f;
 
@@ -33,9 +33,9 @@ const float yPosRelative = 0.0f;
 const float xPosRelative = -7.0f;
 
 float lastTime;
-const float frameTime = 0.016f;
+const float frameTime = 0.02f;
 
-glm::vec2 GRAVITY = glm::vec2(0.0, -9.8 * 0.1);
+glm::vec2 GRAVITY = glm::vec2(0.0, -9.8 * 1.0);
 
 const float border = 10.0f;
 
@@ -210,20 +210,19 @@ void Update(PBFParticle* particles, int row, int col)
 		particles[i].predictPosition += particles[i].velocity*frameTime;
 	}
 
-	for (int T = 0; T < iterateTime; T++)
+	// find neighboring particles
+	for (int T = 0; T < 5; T++)
 	{
 		for (int i = 0; i < row*col; i++)
 		{
 			float density = 0.0f;
-
-			float gradientSum = 0.0f;
-			glm::vec2 gradientC = glm::vec2(0.0f);
-
-			glm::vec2 iPos = particles[i].position;
+			float sum_grad_c = 0.0f;
+			glm::vec2 grad_c = glm::vec2(0.0f);
+			glm::vec2 iPos = particles[i].predictPosition;
 
 			for (int j = 0; j < row*col; j++)
 			{
-				glm::vec2 jPos = particles[j].position;
+				glm::vec2 jPos = particles[j].predictPosition;
 				glm::vec2 relPos = iPos - jPos;
 
 				float dist = glm::distance(glm::vec2(), relPos);
@@ -232,22 +231,23 @@ void Update(PBFParticle* particles, int row, int col)
 				{
 					float poly6 = Poly6SmoothingKernel(dist, threshold);
 					glm::vec2 spiky = SpikySmoothingKernelGradient(relPos, threshold);
-
+					
 					density += poly6;
-
-					glm::vec2 gradientCi = spiky / restDensity;
-					gradientSum += glm::dot(gradientCi, gradientCi);
-					gradientC += gradientCi;
+					
+					glm::vec2 grad_ci = spiky / restDensity;
+					sum_grad_c += glm::dot(grad_ci, grad_ci);
+					grad_c += grad_ci;
 				}
 			}
 
-			gradientSum += dot(gradientC, gradientC);
+			sum_grad_c += glm::dot(grad_c, grad_c);
 
 			float densityContraint = DensityConstraint(density);
-			if (densityContraint < 0.0f)
+
+			if (densityContraint < 0)
 				densityContraint = 0.0f;
 
-			particles[i].lambda = -densityContraint / (gradientSum + 0.1f);
+			particles[i].lambda = -densityContraint / (sum_grad_c + 0.1f);
 		}
 
 		for (int i = 0; i < row*col; i++)
@@ -259,7 +259,7 @@ void Update(PBFParticle* particles, int row, int col)
 					continue;
 
 				particles[i].deltaP += (particles[i].lambda + particles[j].lambda)*
-					SpikySmoothingKernelGradient(particles[i].position - particles[j].position, threshold);
+					SpikySmoothingKernelGradient(particles[i].predictPosition - particles[j].predictPosition, threshold);
 			}
 			particles[i].deltaP /= restDensity;
 			// collision dection and reponse
@@ -268,6 +268,13 @@ void Update(PBFParticle* particles, int row, int col)
 		for (int i = 0; i < row*col; i++)
 		{
 			particles[i].predictPosition += particles[i].deltaP;
+
+			if (particles[i].predictPosition.y < -20.0f)
+				particles[i].predictPosition.y = -20.0f + 0.01f;
+			if (particles[i].predictPosition.x < -20.0f)
+				particles[i].predictPosition.x = -20.0f + 0.01f;
+			if (particles[i].predictPosition.x > 20.0f)
+				particles[i].predictPosition.x = 20.0f - 0.01f;
 		}
 	}
 

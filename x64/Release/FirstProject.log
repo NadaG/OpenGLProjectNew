@@ -21,7 +21,7 @@ PBFmain.cpp(167): warning C4244: 'initializing': conversion from 'double' to 'fl
   Generating code
   25 of 547 functions ( 4.6%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    9 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Release\FirstProject.exe
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Release\FirstProject.pdb (Full PDB)
