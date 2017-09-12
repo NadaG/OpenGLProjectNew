@@ -138,6 +138,7 @@
     <ClCompile Include="CameraScript.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="FrameBufferObject.cpp" />
+    <ClCompile Include="iblmain.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LightScript.cpp" />
@@ -157,6 +158,7 @@
     <ClCompile Include="SceneScript.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="sphmain.cpp" />
+    <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -212,6 +214,7 @@
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="SceneScript.h" />
     <ClInclude Include="ShaderLoader.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>

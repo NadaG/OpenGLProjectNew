@@ -105,6 +105,12 @@
     <ClCompile Include="PBFmain.cpp">
       <Filter>PBF</Filter>
     </ClCompile>
+    <ClCompile Include="iblmain.cpp">
+      <Filter>PBR</Filter>
+    </ClCompile>
+    <ClCompile Include="stb_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -262,6 +268,9 @@
     </ClInclude>
     <ClInclude Include="Particle.h">
       <Filter>SPH</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

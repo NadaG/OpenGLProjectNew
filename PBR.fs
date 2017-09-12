@@ -18,8 +18,12 @@ uniform vec3 lightColors[4];
 
 const float PI = 3.141592;
 
+// 역시 인자로 넘어온 것은 world normal
+// model pos에 있던 것을 model matrix(world에서 바라 본 model에 달린 좌표계)를 곱함으로써 world pos로 가져왔듯이
+// tangent normal에 있던 것을 tbn matrix(world에서 바라 본 tangent에 달린 좌표계)를 곱함으로써 world normal로 가져왔다.
 vec3 getNormalFromMap()
 {
+	// tangent space 상에서의 normal, 거의 파란색임
 	vec3 tangentNormal = texture(normalMap, outTexCoord).xyz * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(worldPos);
@@ -49,7 +53,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 	float NdotH = max(dot(N, H), 0.0);
 	float NdotH2 = NdotH*NdotH;
 
-	// numerator 분자, denominator 분모
+	// numerator(nominator) 분자, denominator 분모
 	float nom = a2;
 	float denom = (NdotH2*(a2-1.0)+1.0);
 	denom = PI * denom * denom;
