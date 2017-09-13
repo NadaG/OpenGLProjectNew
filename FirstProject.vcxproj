@@ -162,6 +162,10 @@
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="background.fs" />
+    <None Include="background.vs" />
+    <None Include="cubemap.fs" />
+    <None Include="cubemap.vs" />
     <None Include="DebugQuad.fs" />
     <None Include="DebugQuad.vs" />
     <None Include="DefferedShading.fs" />

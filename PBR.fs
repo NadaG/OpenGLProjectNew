@@ -90,6 +90,7 @@ void main()
 
 	vec3 Lo = vec3(0.0);
 	vec3 albedo = texture(albedoMap, outTexCoord).rgb;
+	albedo = vec3(0.5, 0.0, 0.0);
 	float metallic = texture(metallicMap, outTexCoord).r;
 	float roughness = texture(roughnessMap, outTexCoord).r;
 
@@ -114,7 +115,7 @@ void main()
 		vec3 nominator = NDF * G * F;
 		float denominator = 4 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
 		vec3 specular = nominator / denominator;
-
+		
 		vec3 kS = F;
 		vec3 kD = vec3(1.0) - kS;
 		kD *= 1.0 - metallic;

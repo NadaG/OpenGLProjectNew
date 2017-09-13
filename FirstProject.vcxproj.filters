@@ -213,6 +213,18 @@
     <None Include="PBR.fs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="background.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="background.fs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="cubemap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="cubemap.fs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderLoader.h">
