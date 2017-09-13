@@ -49,6 +49,7 @@ public:
 		this->predictPosition = other.predictPosition;
 		this->velocity = other.velocity;
 		this->force = other.force;
+		this->colorField = other.colorField;
 	}
 
 	int id;
@@ -59,6 +60,7 @@ public:
 	glm::vec2 predictPosition;
 	glm::vec2 velocity;
 	glm::vec2 force;
+	glm::vec2 colorField;
 
 	bool operator==(const PBFParticle& r) { return this->id == r.id; }
 };
