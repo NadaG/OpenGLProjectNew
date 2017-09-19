@@ -55,12 +55,12 @@ public:
 	int id;
 	float density;
 	float lambda;
-	glm::vec2 position;
-	glm::vec2 deltaP;
-	glm::vec2 predictPosition;
-	glm::vec2 velocity;
-	glm::vec2 force;
-	glm::vec2 colorField;
+	glm::vec3 position;
+	glm::vec3 deltaP;
+	glm::vec3 predictPosition;
+	glm::vec3 velocity;
+	glm::vec3 force;
+	glm::vec3 colorField;
 
 	bool operator==(const PBFParticle& r) { return this->id == r.id; }
 };

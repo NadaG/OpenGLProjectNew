@@ -14,10 +14,7 @@ c:\users\render4\documents\visual studio 2015\projects\firstproject\packages\ass
 c:\users\render4\documents\visual studio 2015\projects\firstproject\packages\assimp.3.0.0\build\native\include\assimp\matrix3x3.inl : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\packages\assimp.3.0.0\build\native\include\assimp\matrix4x4.inl : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\inputmanager.h(15): warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\pbfmain.cpp(158): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\pbfmain.cpp(161): warning C4244: 'initializing': conversion from 'float' to 'std::size_t', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\pbfmain.cpp(163): warning C4244: 'initializing': conversion from 'float' to 'std::size_t', possible loss of data
-c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\pbfmain.cpp(167): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\pbfmain.cpp(234): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\pbfmain.cpp(247): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Debug\FirstProject.exe
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Debug\FirstProject.pdb (Partial PDB)
