@@ -225,6 +225,12 @@
     <None Include="cubemap.fs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="ibl_cubemap.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="equirectangular_to_cubemap.fs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderLoader.h">

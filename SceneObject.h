@@ -36,7 +36,7 @@ public:
 	glm::vec3 GetScale() { return scaleVector; }
 	glm::mat4 GetRotate() { return rotationMatrix; }
 
-	glm::vec3 testPosition() { return glm::vec4(scaleVector, 1.0)*rotationMatrix*glm::vec4(positionVector, 1.0); }
+	glm::vec3 testPosition() { return rotationMatrix*glm::vec4(positionVector, 1.0); }
 
 	void ScriptsAwake();
 	void ScriptsStart();

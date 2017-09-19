@@ -178,6 +178,7 @@
     <None Include="Bloom.vs" />
     <None Include="HDRlighting.fs" />
     <None Include="HDRlighting.vs" />
+    <None Include="ibl_cubemap.vs" />
     <None Include="LightShader.fs" />
     <None Include="LightShader.vs" />
     <None Include="packages.config" />
@@ -200,6 +201,7 @@
     <None Include="SSAO_Geometry.vs" />
     <None Include="TextureShader.fs" />
     <None Include="TextureShader.vs" />
+    <None Include="equirectangular_to_cubemap.fs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
