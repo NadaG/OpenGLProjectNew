@@ -1,11 +1,4 @@
 //#include "Camera.h"
-//#include "Light.h"
-//#include "Texture.h"
-//#include "FrameBufferObject.h"
-//#include "CameraScript.h"
-//#include "Debug.h"
-//
-////////// pbf
 //#include "Particle.h"
 //
 //using namespace std;
@@ -14,24 +7,33 @@
 //const int height = 800;
 //
 //void Render(ShaderProgram& shader);
-//void Update(PBFParticle* particles, int row, int col, int dep);
-//void UpdateParticlesPos(PBFParticle* particles, GLfloat* particlesPoses, int row, int col, int dep);
+//void Update(PBFParticle* particles, int row, int col, int dep, int oRow, int oCol, int oDep);
+//void UpdateParticlesPos(PBFParticle* particles, GLfloat* particlesPoses, int row, int col, int dep, int oRow, int oCol, int oDep);
 //
 //GLuint VAO;
-//const int particleRow = 10;
-//const int particleCol = 10;
-//const int particleDep = 10;
+//const int particleRow = 12;
+//const int particleCol = 12;
+//const int particleDep = 3;
+//
+//const int obsRow = 5;
+//const int obsCol = 5;
+//const int obsDep = 5;
 //
 //const float threshold = 1.0f;
 //const float dist = 0.5f;
+//const float obsDist = 0.5f;
 //const float restDensity = 10.0f;
 //const float epsilon = 0.01f;
 //
 //int iterateTime = 3;
 //
-//const float yPosRelative = 0.0f;
 //const float xPosRelative = 0.0f;
+//const float yPosRelative = 3.0f;
 //const float zPosRelative = 0.0f;
+//
+//const float xObsPosRelative = 0.0f;
+//const float yObsPosRelative = -1.0f;
+//const float zObsPosRelative = 0.0f;
 //
 //float lastTime;
 //const float frameTime = 0.02f;
@@ -63,7 +65,6 @@
 //// cuda + shader
 //// volticity
 //// marching cube
-//// one way coupling
 //// two way coupling
 //float Poly6SmoothingKernel(float r, float h)
 //{
@@ -187,10 +188,10 @@
 //	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 //	GLfloat* particlesPoses;
 //	// (x1,y1), (x2,y2)...
-//	particlesPoses = new GLfloat[particleRow * particleCol * particleDep * 3];
+//	particlesPoses = new GLfloat[particleRow * particleCol * particleDep * 3 + obsRow * obsCol * obsDep * 3];
 //
 //	PBFParticle* particles;
-//	particles = new PBFParticle[particleRow * particleCol * particleDep];
+//	particles = new PBFParticle[particleRow * particleCol * particleDep + obsRow * obsCol * obsDep];
 //
 //	for (int i = 0; i < particleRow; i++)
 //	{
@@ -209,6 +210,29 @@
 //				particles[a].force = glm::vec3();
 //				particles[a].velocity = glm::vec3();
 //				particles[a].id = a;
+//				particles[a].isObs = false;
+//			}
+//		}
+//	}
+//
+//	for (int i = 0; i < obsRow; i++)
+//	{
+//		for (int j = 0; j < obsCol; j++)
+//		{
+//			for (int k = 0; k < obsDep; k++)
+//			{
+//				int y = i - obsRow / 2;
+//				int x = j - obsCol / 2;
+//				int z = k - obsDep / 2;
+//				int a = i*obsCol*obsDep + j*obsDep + k + particleRow * particleCol * particleDep;
+//				particles[a].lambda = 0.0f;
+//				particles[a].density = 0.0f;
+//				particles[a].position = glm::vec3(x*obsDist + xObsPosRelative, y*obsDist + yObsPosRelative, z*obsDist + zObsPosRelative);
+//				particles[a].predictPosition = particles[a].position;
+//				particles[a].force = glm::vec3();
+//				particles[a].velocity = glm::vec3();
+//				particles[a].id = a;
+//				particles[a].isObs = true;
 //			}
 //		}
 //	}
@@ -220,9 +244,9 @@
 //
 //	glBindVertexArray(VAO);
 //
-//	UpdateParticlesPos(particles, particlesPoses, particleRow, particleCol, particleDep);
+//	UpdateParticlesPos(particles, particlesPoses, particleRow, particleCol, particleDep, obsRow , obsCol, obsDep);
 //	glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
-//	glBufferData(GL_ARRAY_BUFFER, particleRow * particleCol * particleDep * sizeof(GLfloat) * 3, particlesPoses, GL_STATIC_DRAW);
+//	glBufferData(GL_ARRAY_BUFFER, (particleRow * particleCol * particleDep + obsRow * obsCol * obsDep) * sizeof(GLfloat) * 3, particlesPoses, GL_STATIC_DRAW);
 //
 //	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
 //	glEnableVertexAttribArray(0);
@@ -249,11 +273,11 @@
 //		else
 //			continue;
 //
-//		Update(particles, particleRow, particleCol, particleDep);
+//		Update(particles, particleRow, particleCol, particleDep, obsRow, obsCol, obsDep);
 //		
-//		UpdateParticlesPos(particles, particlesPoses, particleRow, particleCol, particleDep);
+//		UpdateParticlesPos(particles, particlesPoses, particleRow, particleCol, particleDep, obsRow, obsCol, obsDep);
 //		glBindBuffer(GL_ARRAY_BUFFER, particleBuffer);
-//		glBufferSubData(GL_ARRAY_BUFFER, 0, particleRow * particleCol * particleDep * sizeof(GLfloat) * 3, particlesPoses);
+//		glBufferSubData(GL_ARRAY_BUFFER, 0, (particleRow * particleCol * particleDep + obsRow * obsCol * obsDep) * sizeof(GLfloat) * 3, particlesPoses);
 //
 //		Render(sphShader);
 //
@@ -277,13 +301,13 @@
 //
 //	glBindVertexArray(VAO);
 //	glPointSize(4);
-//	glDrawArrays(GL_POINTS, 0, particleRow * particleCol * particleDep);
+//	glDrawArrays(GL_POINTS, 0, particleRow * particleCol * particleDep + obsRow * obsCol * obsDep);
 //}
 //
 //const int iterTime = 3;
-//void Update(PBFParticle* particles, int row, int col, int dep)
+//void Update(PBFParticle* particles, int row, int col, int dep, int oRow, int oCol, int oDep)
 //{
-//	int particlesNum = row*col*dep;
+//	int particlesNum = row*col*dep + oRow * oCol * oDep;
 //
 //	for (int i = 0; i < (int)borderWidth * 2 + neighborPadding * 2 + 1; i++)
 //	{
@@ -299,9 +323,12 @@
 //	// external force
 //	for (int i = 0; i < particlesNum; i++)
 //	{
-//		particles[i].force += GRAVITY;
-//		particles[i].velocity += particles[i].force*frameTime;
-//		particles[i].predictPosition += particles[i].velocity*frameTime;
+//		if (!particles[i].isObs)
+//		{
+//			particles[i].force += GRAVITY;
+//			particles[i].velocity += particles[i].force*frameTime;
+//			particles[i].predictPosition += particles[i].velocity*frameTime;
+//		}
 //		glm::ivec3 index = FindTableIndex(particles[i].position);
 //		table[index.x][index.y][index.z].push_back(&particles[i]);
 //	}
@@ -311,6 +338,7 @@
 //	{
 //		for (int i = 0; i < particlesNum; i++)
 //		{
+//
 //			float density = 0.0f;
 //			float sum_grad_c = 0.0f;
 //			glm::vec3 grad_c = glm::vec3(0.0f);
@@ -330,7 +358,10 @@
 //					float poly6 = Poly6SmoothingKernel(dist, threshold);
 //					glm::vec3 spiky = SpikySmoothingKernelGradient(relPos, threshold);
 //
-//					density += poly6;
+//					if (particles[i].isObs)
+//						density += poly6 * 1.3f;
+//					else
+//						density += poly6;
 //
 //					glm::vec3 grad_ci = spiky / restDensity;
 //					sum_grad_c += glm::dot(grad_ci, grad_ci);
@@ -351,8 +382,11 @@
 //
 //		for (int i = 0; i < particlesNum; i++)
 //		{
+//			if (particles[i].isObs)
+//				continue;
+//
 //			particles[i].deltaP = glm::vec3(0.0f);
-//			
+//
 //			vector<PBFParticle*> neighbors = FindNeighbors(particles[i], neighborPadding);
 //			for (int j = 0; j < neighbors.size(); j++)
 //			{
@@ -370,12 +404,15 @@
 //						SpikySmoothingKernelGradient(particles[i].predictPosition - neighbors[j]->predictPosition, threshold);
 //				}
 //			}
-//			
+//
 //			particles[i].deltaP /= restDensity;
 //		}
 //
 //		for (int i = 0; i < particlesNum; i++)
 //		{
+//			if (particles[i].isObs)
+//				continue;
+//
 //			particles[i].predictPosition += particles[i].deltaP;
 //
 //			if (particles[i].predictPosition.y < -borderHeight / 2)
@@ -393,12 +430,21 @@
 //		}
 //	}
 //
+//	// velocity
 //	for (int i = 0; i < particlesNum; i++)
+//	{
+//		if (particles[i].isObs)
+//			continue;
+//
 //		particles[i].velocity = (particles[i].predictPosition - particles[i].position) / frameTime;
+//	}
 //
 //	// color
 //	for (int i = 0; i < particlesNum; i++)
 //	{
+//		if (particles[i].isObs)
+//			continue;
+//
 //		glm::vec3 iPos = particles[i].predictPosition;
 //		glm::vec3 colorField = glm::vec3(0.0f);
 //
@@ -424,6 +470,9 @@
 //	// surface tension
 //	for (int i = 0; i < particlesNum; i++)
 //	{
+//		if (particles[i].isObs)
+//			continue;
+//
 //		glm::vec3 ipos = particles[i].predictPosition;
 //		glm::vec3 surfacetension = glm::vec3(0.0f);
 //		glm::vec3 cohesionforce = glm::vec3(0.0f);
@@ -454,6 +503,9 @@
 //	// viscosicty
 //	for (int i = 0; i < particlesNum; i++)
 //	{
+//		if (particles[i].isObs)
+//			continue;
+//
 //		glm::vec3 velDirSum = glm::vec3();
 //
 //		vector<PBFParticle*> neighbors = FindNeighbors(particles[i], neighborPadding);
@@ -470,7 +522,7 @@
 //	}
 //}
 //
-//void UpdateParticlesPos(PBFParticle* particles, GLfloat* particlesPoses, int row, int col, int dep)
+//void UpdateParticlesPos(PBFParticle* particles, GLfloat* particlesPoses, int row, int col, int dep, int oRow, int oCol, int oDep)
 //{
 //	for (int i = 0; i < row; i++)
 //	{
@@ -481,6 +533,20 @@
 //				particlesPoses[(i * col * dep + j * dep + k) * 3] = particles[i * col * dep + j * dep + k].position.x;
 //				particlesPoses[(i * col * dep + j * dep + k) * 3 + 1] = particles[i * col * dep + j * dep + k].position.y;
 //				particlesPoses[(i * col * dep + j * dep + k) * 3 + 2] = particles[i * col * dep + j * dep + k].position.z;
+//			}
+//		}
+//	}
+//
+//	int p = row*col*dep;
+//	for (int i = 0; i < oRow; i++)
+//	{
+//		for (int j = 0; j < oCol; j++)
+//		{
+//			for (int k = 0; k < oDep; k++)
+//			{
+//				particlesPoses[(p + i * oCol * oDep + j * oDep + k) * 3] = particles[p + i * oCol * oDep + j * oDep + k].position.x;
+//				particlesPoses[(p + i * oCol * oDep + j * oDep + k) * 3 + 1] = particles[p + i * oCol * oDep + j * oDep + k].position.y;
+//				particlesPoses[(p + i * oCol * oDep + j * oDep + k) * 3 + 2] = particles[p + i * oCol * oDep + j * oDep + k].position.z;
 //			}
 //		}
 //	}

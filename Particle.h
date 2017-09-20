@@ -61,6 +61,7 @@ public:
 	glm::vec3 velocity;
 	glm::vec3 force;
 	glm::vec3 colorField;
+	bool isObs = false;
 
 	bool operator==(const PBFParticle& r) { return this->id == r.id; }
 };

@@ -90,7 +90,7 @@ void main()
 
 	vec3 Lo = vec3(0.0);
 	vec3 albedo = texture(albedoMap, outTexCoord).rgb;
-	albedo = vec3(0.5, 0.0, 0.0);
+	albedo = vec3(0.8, 0.8, 0.8);
 	float metallic = texture(metallicMap, outTexCoord).r;
 	float roughness = texture(roughnessMap, outTexCoord).r;
 

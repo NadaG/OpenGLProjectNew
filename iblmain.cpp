@@ -45,6 +45,11 @@ void renderCube();
 
 unsigned int loadTexture(char const * path);
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
 int main(int argc, char **argv)
 {
 	if (!glfwInit())
@@ -67,6 +72,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwMakeContextCurrent(window);
 	glewExperimental = true;
 
@@ -76,13 +82,58 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
+	glEnable(GL_DEPTH_TEST);
+	// 그리는 순서에 영향을 받는 다는 것을 기억하자
+	// 만약 나중에 들어오는 깊이 값이 원래 있는 픽셀의 깊이 값보다 작거나 같은 경우
+	glDepthFunc(GL_LEQUAL);
+
+	////////////////////////////////////////////////////////////////////////////////
+
+	ShaderProgram pbrShader("PBR.vs", "PBR.fs");
+	ShaderProgram lightShader("LightShader.vs", "LightShader.fs");
+	ShaderProgram equirectangularToCubemapShader("ibl_cubemap.vs", "equirectangular_to_cubemap.fs");
+	ShaderProgram backgroundShader("ibl_background.vs", "ibl_background.fs");
+
+	backgroundShader.Use();
+	backgroundShader.SetUniform1i("environmentMap", 0);
+
+	// create framebuffer
+	glGenFramebuffers(1, &captureFBO);
+	glGenRenderbuffers(1, &captureRBO);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
+
+	// load the hdr environment map
+	int w, h, nc;
+	float* data = stbi_loadf("Apartment/Apt1.hdr", &w, &h, &nc, 0);
+	if (data)
+	{
+		glGenTextures(1, &hdrTexture);
+		glBindTexture(GL_TEXTURE_2D, hdrTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, w, h, 0, GL_RGB, GL_FLOAT, data);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+		cout << "Failed to load HDR image" << endl;
+
+	// set up cube map
 	glGenTextures(1, &envCubemap);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
 	for (int i = 0; i < 6; ++i)
 	{
 		// note that we store each face with 16 bit floating point values
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F,
-			512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+		// 아직 data는 null임 equirectangualr map으로 부터 얻어올 것임
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -90,6 +141,7 @@ int main(int argc, char **argv)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	// set up projection and view matrix
 	glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 	glm::mat4 captureViews[] =
 	{
@@ -101,10 +153,7 @@ int main(int argc, char **argv)
 		glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))
 	};
 
-	ShaderProgram pbrShader("PBR.vs", "PBR.fs");
-	ShaderProgram lightShader("LightShader.vs", "LightShader.fs");
-	ShaderProgram equirectangularToCubemapShader("ibl_cubemap.vs", "equirectangular_to_cubemap.fs");
-
+	// convert hdr equirectangular environment map to cubemap equivalent
 	equirectangularToCubemapShader.Use();
 	equirectangularToCubemapShader.SetUniform1i("equirectangularMap", 0);
 	equirectangularToCubemapShader.SetUniformMatrix4f("projection", captureProjection);
@@ -119,10 +168,10 @@ int main(int argc, char **argv)
 		equirectangularToCubemapShader.SetUniformMatrix4f("view", captureViews[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		renderCube();
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, width, height);
 
 	pbrShader.Use();
 	pbrShader.SetUniform1i("albedoMap", 0);
@@ -184,57 +233,25 @@ int main(int argc, char **argv)
 	roughness = loadTexture("PBR/roughness.png");
 	////////////////////////////////////////////////
 
-	glGenFramebuffers(1, &captureFBO);
-	glGenRenderbuffers(1, &captureRBO);
-	
-	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
-
-	//stbi_set_flip_vertically_on_load(true);
-	int w, h, nc;
-	float* data = stbi_loadf("Apartment/Apt1.hdr", &w, &h, &nc, 0);
-
-	if (data)
-	{
-		glGenTextures(1, &hdrTexture);
-		glBindTexture(GL_TEXTURE_2D, hdrTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, w, h, 0, GL_RGB, GL_FLOAT, data);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else
-		cout << "Failed to load HDR image" << endl;
-
-	glEnable(GL_DEPTH_TEST);
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	
+	int scrWidth, scrHeight;
+	glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
+	glViewport(0, 0, scrWidth, scrHeight);
 
 	// SRT의 순서대로 곱이 동작한다. 곱을 할때는 반대로임
 	do
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, width, height);
 		Render(camera, lights, sceneObjects, pbrShader, lightShader);
 
+		backgroundShader.Use();
+		glm::mat4 cubeMapView = glm::rotate(3.141592f, glm::vec3(0.0f, 0.0f, 1.0f));
+		backgroundShader.SetUniformMatrix4f("view", view * cubeMapView);
+		backgroundShader.SetUniformMatrix4f("projection", projection);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, hdrTexture);
-
-		glm::mat4 model = glm::rotate(180.0f * 3.141592f / 180.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-
-		/*equirectangularToCubemapShader.Use();
-		equirectangularToCubemapShader.SetUniform1i("equirectangularMap", 0);
-		equirectangularToCubemapShader.SetUniformMatrix4f("model", model);
-		equirectangularToCubemapShader.SetUniformMatrix4f("view", view);
-		equirectangularToCubemapShader.SetUniformMatrix4f("projection", projection);
-		renderCube();*/
+		glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+		renderCube();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -353,7 +370,6 @@ void Render(Camera* camera, Light* lights[], SceneObject** sceneObjects, ShaderP
 		// glDrawElements를 사용하려면 VAO가 필요함, 없을 경우 indices를 제대로 넣어줘야  하고
 		// VAO가 있을 경우 indices 자리에 NULL을 넣어주더라도 알아서 bind 된 VAO에 따라 그려줌
 		glBindVertexArray(sceneObjects[i]->GetVAO());
-		//glDrawElements(GL_TRIANGLES, sceneObjects[i]->GetMesh().GetIndexNum(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		// 5는 layout 총 개수

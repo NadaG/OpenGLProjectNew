@@ -178,6 +178,8 @@
     <None Include="Bloom.vs" />
     <None Include="HDRlighting.fs" />
     <None Include="HDRlighting.vs" />
+    <None Include="ibl_background.fs" />
+    <None Include="ibl_background.vs" />
     <None Include="ibl_cubemap.vs" />
     <None Include="LightShader.fs" />
     <None Include="LightShader.vs" />

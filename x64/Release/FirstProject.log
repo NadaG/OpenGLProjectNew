@@ -1,32 +1,23 @@
 ﻿  iblmain.cpp
-C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/core/mat.hpp(2586): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/core/persistence.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/core/utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/core/utility.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-c:\users\render4\downloads\opencv\build\include\opencv2\flann\dist.h : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/imgproc.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/imgproc.hpp(592): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/stitching/detail/motion_estimators.hpp : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
-C:\Users\RENDER4\Downloads\opencv\build\include\opencv2/video/tracking.hpp(532): warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\packages\assimp.3.0.0\build\native\include\assimp\defs.h : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\packages\assimp.3.0.0\build\native\include\assimp\matrix3x3.h : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\packages\assimp.3.0.0\build\native\include\assimp\matrix4x4.h : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\packages\assimp.3.0.0\build\native\include\assimp\matrix3x3.inl : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\packages\assimp.3.0.0\build\native\include\assimp\matrix4x4.inl : warning C4819: The file contains a character that cannot be represented in the current code page (949). Save the file in Unicode format to prevent data loss
 c:\users\render4\documents\visual studio 2015\projects\firstproject\firstproject\InputManager.h(15): warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
-iblmain.cpp(276): warning C4305: 'argument': truncation from 'double' to 'float'
-iblmain.cpp(279): warning C4305: 'argument': truncation from 'double' to 'float'
-iblmain.cpp(417): warning C4305: 'initializing': truncation from 'double' to 'float'
-iblmain.cpp(455): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
-iblmain.cpp(495): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
-iblmain.cpp(497): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
-iblmain.cpp(499): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
-iblmain.cpp(501): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
-iblmain.cpp(503): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+iblmain.cpp(293): warning C4305: 'argument': truncation from 'double' to 'float'
+iblmain.cpp(296): warning C4305: 'argument': truncation from 'double' to 'float'
+iblmain.cpp(433): warning C4305: 'initializing': truncation from 'double' to 'float'
+iblmain.cpp(471): warning C4267: '=': conversion from 'size_t' to 'unsigned int', possible loss of data
+iblmain.cpp(511): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+iblmain.cpp(513): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+iblmain.cpp(515): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+iblmain.cpp(517): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+iblmain.cpp(519): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
   Generating code
-  3 of 1125 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+  1 of 1126 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    21 functions had inline decision re-evaluated but remain unchanged
+    20 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Release\FirstProject.exe
   FirstProject.vcxproj -> C:\Users\RENDER4\documents\visual studio 2015\Projects\FirstProject\x64\Release\FirstProject.pdb (Full PDB)
