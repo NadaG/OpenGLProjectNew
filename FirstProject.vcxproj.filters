@@ -237,6 +237,9 @@
     <None Include="ibl_background.fs">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="irradiance_convolution.fs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderLoader.h">

@@ -37,7 +37,7 @@ GLuint albedo, normal, metallic, roughness;
 GLuint hdrTexture;
 
 GLuint captureFBO, captureRBO;
-GLuint envCubemap;
+GLuint envCubemap, irradianceMap;
 
 void Render(Camera* camera, Light* light[], SceneObject** sceneObjects, ShaderProgram& shader, ShaderProgram& lightShader);
 void renderSphere();
@@ -84,7 +84,9 @@ int main(int argc, char **argv)
 
 	glEnable(GL_DEPTH_TEST);
 	// 그리는 순서에 영향을 받는 다는 것을 기억하자
-	// 만약 나중에 들어오는 깊이 값이 원래 있는 픽셀의 깊이 값보다 작거나 같은 경우
+	// 만약 나중에 들어오는 깊이 값이 원래 있는 픽셀의 깊이 값보다 작거나 같은 경우, 깊이 값이 작다는 것은 더 가깝다는 것임
+	// default는 GL_LESS임
+	// pass를 여러 개 두면 depth 값이 같아질 수 있는데 이럴 경우를 해결하기 위해 LEQUAL을 사용함
 	glDepthFunc(GL_LEQUAL);
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +95,7 @@ int main(int argc, char **argv)
 	ShaderProgram lightShader("LightShader.vs", "LightShader.fs");
 	ShaderProgram equirectangularToCubemapShader("ibl_cubemap.vs", "equirectangular_to_cubemap.fs");
 	ShaderProgram backgroundShader("ibl_background.vs", "ibl_background.fs");
+	ShaderProgram irradianceShader("ibl_cubemap.vs", "irradiance_convolution.fs");
 
 	backgroundShader.Use();
 	backgroundShader.SetUniform1i("environmentMap", 0);
@@ -173,11 +176,49 @@ int main(int argc, char **argv)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, width, height);
 
+	// create irradiance map
+	glGenTextures(1, &irradianceMap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
+	for (int i = 0; i < 6; i++)
+	{
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 32, 32, 0, GL_RGB, GL_FLOAT, nullptr);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+	// 현재 GL_RENDERBUFFER에 바인딩 된 rbo에 메모리를 할당한다. 메모리만 할당하는 것이지 실제로 값을 채워넣는 것은 아니다.
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
+
+	irradianceShader.Use();
+	irradianceShader.SetUniform1i("environmentMap", 0);
+	irradianceShader.SetUniformMatrix4f("projection", captureProjection);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+
+	glViewport(0, 0, 32, 32);
+	glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+	for (unsigned int i = 0; i < 6; ++i)
+	{
+		irradianceShader.SetUniformMatrix4f("view", captureViews[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		renderCube();
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	pbrShader.Use();
 	pbrShader.SetUniform1i("albedoMap", 0);
 	pbrShader.SetUniform1i("normalMap", 1);
 	pbrShader.SetUniform1i("metallicMap", 2);
 	pbrShader.SetUniform1i("roughnessMap", 3);
+	pbrShader.SetUniform1i("irradianceMap", 4);
 
 	Camera* camera = new Camera;
 	int lightNum = 4;
@@ -388,6 +429,9 @@ void Render(Camera* camera, Light* lights[], SceneObject** sceneObjects, ShaderP
 
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, roughness);
+
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
 
 	shader.SetUniformMatrix4f("model", glm::mat4());
 	renderSphere();

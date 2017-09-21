@@ -10,6 +10,7 @@ uniform sampler2D albedoMap;
 uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
+uniform samplerCube irradianceMap;
 
 uniform float ao;
 
@@ -89,11 +90,15 @@ void main()
 	vec3 V = normalize(eyePos - worldPos);
 
 	vec3 Lo = vec3(0.0);
-	vec3 albedo = texture(albedoMap, outTexCoord).rgb;
-	albedo = vec3(0.8, 0.8, 0.8);
+	vec3 albedo = vec3(0.8, 0.8, 0.8);
 	float metallic = texture(metallicMap, outTexCoord).r;
 	float roughness = texture(roughnessMap, outTexCoord).r;
+	
+	vec3 F0 = vec3(0.04);
+	// (x, y, a) => x*(1-a) + a*y
+	F0 = mix(F0, albedo, metallic);
 
+	// indirect diffuse는 ambient라고 보면 된다.
 	for(int i = 0; i < 4; i++)
 	{
 		vec3 L = normalize(lightPositions[i] - worldPos);
@@ -102,13 +107,9 @@ void main()
 		float distance = length(lightPositions[i] - worldPos);
 		float attenuation = 1.0 / (distance * distance);
 		vec3 radiance = lightColors[i] * attenuation;
-
-		vec3 F0 = vec3(0.04);
-		// (x, y, a) => x*(1-a) + a*y
-		F0 = mix(F0, albedo, metallic);
 		
-		vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 		float NDF = DistributionGGX(N, H, roughness);
+		vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 		float G = GeometrySmith(N, V, L, roughness);
 				
 		// Cook-Torrance BRDF
@@ -124,11 +125,17 @@ void main()
 		Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 	}
 
-	vec3 ambient = vec3(0.5) * albedo;
+	vec3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0);
+	vec3 kD = 1.0 - kS;
+	kD *= 1.0 - metallic;
+	vec3 irradiance = texture(irradianceMap, N).rgb;
+	vec3 diffuse = irradiance * albedo;
+	vec3 ambient = kD * diffuse;
+
 	color = ambient + Lo;
 
 	// HDR tonemapping
-	// color = color / (color * vec3(1.0));
+	color = color / (color + vec3(1.0));
 	// gamma correction
-	// color = pow(color, vec3(1.0/2.2));
+	color = pow(color, vec3(1.0/2.2));
 }

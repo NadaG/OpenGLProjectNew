@@ -181,6 +181,7 @@
     <None Include="ibl_background.fs" />
     <None Include="ibl_background.vs" />
     <None Include="ibl_cubemap.vs" />
+    <None Include="irradiance_convolution.fs" />
     <None Include="LightShader.fs" />
     <None Include="LightShader.vs" />
     <None Include="packages.config" />
